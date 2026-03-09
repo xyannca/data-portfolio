@@ -7,7 +7,7 @@ https://data-portfolio-pied.vercel.app
 
 A personal data portfolio showcasing:
 
-• Human-centered Insights
+• Human-centered insights
 • Tableau dashboards
 • Power BI dashboards
 • AI-driven insight tools
