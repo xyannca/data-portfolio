@@ -126,7 +126,13 @@ const DeepSightBackground = () => {
         requestRef.current = requestAnimationFrame(animate);
         const handleResize = () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); };
         window.addEventListener('resize', handleResize);
-        return () => { window.removeEventListener('resize', handleResize); cancelAnimationFrame(requestRef.current); renderer.dispose(); if(containerRef.current) containerRef.current.innerHTML = ''; };
+        return () => { window.removeEventListener('resize', handleResize); 
+          if (requestRef.current !== null) {
+              cancelAnimationFrame(requestRef.current);
+            }
+          renderer.dispose();
+
+          if(containerRef.current) containerRef.current.innerHTML = ''; };
     }, []);
     return <div ref={containerRef} style={{position:'fixed', inset:0, pointerEvents:'none', opacity:0.9}} />;
 };

@@ -3,7 +3,7 @@ import { getAuth } from "firebase-admin/auth";
 import * as admin from "firebase-admin";
 import { GoogleGenAI } from "@google/genai";
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 const APP_ID = "deep-sight-sanctuary";
 
