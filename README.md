@@ -1,5 +1,23 @@
-Live Website:
+# Data Portfolio
+
+Live Website
 https://data-portfolio-pied.vercel.app
+
+## Overview
+
+A personal data portfolio showcasing:
+
+• Human-centered Insights
+• Tableau dashboards
+• Power BI dashboards
+• AI-driven insight tools
+
+Built with:
+
+Next.js
+TypeScript
+Vercel
+LLM APIs
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
