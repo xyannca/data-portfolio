@@ -96,7 +96,7 @@ const DeepSightBackground = () => {
 
         scene.add(new THREE.AmbientLight(0xffffff, 2.2)); 
         const light = new THREE.PointLight(0x14b8a6, 4, 3000); light.position.set(0, 150, 100); scene.add(light);
-        const animate = (time) => {
+        const animate = (time: number) => {
             if (!sun || !scene || !camera) return; // Safety check
             const t = time * 0.001; 
             const breathCycle = (t % 10);
