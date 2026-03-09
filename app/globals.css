@@ -1,26 +1,364 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 1. Global Page Settings - White Background */
+html, body {
+  background-color: white !important;
+  color: #171717;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 2. Top-Right Navigation */
+.nav-bar {
+  position: fixed;
+  top: 30px;
+  right: 60px;
+
+  background: transparent;
+
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  z-index: 1000;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.nav-bar a {
+  text-decoration: none;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 20px;
+  font-weight: 50;
+  color: #111;
+  transition: color 0.3s ease, border-bottom-color 0.3s ease;
+  padding-bottom: 5px; /* Space for the underline */  
+  border-bottom: 3px solid transparent; /* Prevents text from jumping when underlined */
+  line-height: 1;
+  white-space: nowrap;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+/* Single rule for the active underline on BOTH pages */
+.nav-bar a.active,
+.nav-bar a:hover {
+  color: #111;
+  border-bottom: 3px solid #111;
 }
+
+.nav-bar.scrolled a.active,
+.nav-bar.scrolled a:hover {
+  color: #171717;
+  border-bottom: 3px solid #171717;
+}
+  
+.nav-bar.scrolled a {
+  color: #5a5959;
+}
+
+
+
+
+/* 3. Home Page Header (hero-path.jpg); Journey Page: Header only with hero-path-journey.jpg */
+
+.hero {
+  height: 100px; /* Fixed height for top-only image */
+  min-height: 90vh; /* instead of 70–80vh */
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+  opacity: 1;
+
+  padding-top:80px;
+
+  background-position: top center;
+  background-image: url('/path.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* 4. Text styles inside the banner images */
+/* 1. Hero Text Styles - Cleaned and Unified */
+.hero-text h1 {
+  font-family: "Georgia", serif;
+  font-size: 2rem; /* Forces the larger size */
+  font-weight: 600; /* Forces the "Bond" style */
+  color: white;
+  
+  
+}
+
+.hero-text p {
+  color: white;
+  font-family: "Georgia", serif;
+  font-size: 1.5rem; /* Better balance than the 3rem in your screenshot */
+  margin-top: 55px;
+}
+
+
+
+.dashboard-page .page-header {
+  height: auto; /* Fixed height for top-only image */
+  min-height: 50vh; /* instead of 70–80vh */
+  position: relative;
+
+  display: flex;
+  flex-direction: column; /* ADD THIS to stack the title and text */
+  justify-content: center; /* This centers horizontally, handles the "left-to-right" middle. */
+  align-items: center; /* CHANGE THIS from flex-end to center, handles the "top-to-bottom" middle. */
+  text-align: center; /* Keeps the text centered within its own box */
+  opacity: 1;
+  padding-top:80px;
+  /* ... keep the background image settings below ... */
+
+  /* Commented out the background image for Dashboard page
+  background-position: top center;
+  background-image: url('/Lake_Louise.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  */
+
+}
+
+/* 2. This controls the TITLE specifically (Matches your Home page) */
+.dashboard-page .page-header h1 {
+    font-family: "Georgia", serif;
+    font-size: 2rem; /* Now that you fixed the space, use 3rem here too */
+    font-weight: 600;
+    color: #000;
+    
+}
+
+/* 3. This controls the SUBTITLE specifically */
+.dashboard-page .page-header p {
+    font-family: "Georgia", serif;
+    font-size: 1.5rem;
+    color: #333;
+    margin-top: 15px;
+}
+
+.dashboard-page .content-container {
+  max-width: 1000px;
+  padding: 60px 0 60px 5%;   /* same visual logic as Home */
+}
+
+
+
+
+
+/* 2. Article Grid (Kept from your useful code) */
+.article-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  padding: 80px 20%;
+  max-width: 800px; /* Optional: prevents text from getting too wide on huge screens */
+  margin: 0 auto;    /* Centers the entire grid container */
+ 
+}
+
+.article-card {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: 0.4s;
+}
+
+/* max words in each line */
+.reading-container {
+  max-width: 680px;   /* ideal reading width */
+  margin-left: 5%;
+}
+
+
+/* 3. Article alignment for white background */
+.intro-text {
+  font-size: 1.25rem;
+  color: #171717; /* Changed to dark for your white background layout */
+  font-style: italic;
+  line-height: 2.2;
+  text-align: left; /* Aligns to left as per your request */
+  /* Ensure it has a matching margin/padding to the grid above */
+  padding: 0 30%;
+}
+
+/* Outer section controlling page balance */
+.articles-section {
+  width: 100%;
+  padding: 40px 5%;   /* ← THIS is your 5% left & right */
+  box-sizing: border-box;
+}
+
+
+/* Add this to the bottom of globals.css, Awakening */
+.article-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 120px; /* Space between the image and text */
+  justify-content: space-between; 
+ 
+
+   /* === page balance === */
+  width: 100%;          /* full width */
+  padding: 32px 5%;   /* matches overall page padding */
+  box-sizing: border-box;
+}
+
+
+.article-text {
+  flex: 1;  /* text slightly dominant, Awakening */
+  max-width: 520px; /* keeps lines readable */
+}
+
+
+.article-image {
+  flex: 1; 
+  margin-top: 20px; /* aligns better with text ** Awakening Image */
+  max-width: 360px; /* limits image size */
+}
+
+.article-image img {
+  width: 100%; /* Adjust this to make the image larger or smaller, ** Awakening Image*/ 
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Optional: makes it look more formal */
+}
+
+
+/* 5. Journey article typography */
+.long-read h2 {
+  font-size: 1.5rem;        /* title size */
+  line-height: 1.3;
+  margin-bottom: 16px;
+}
+
+.long-read p {
+  font-size: 1rem;     /* body text size */
+  line-height: 1.9;
+  max-width: 72ch;        /* keeps it readable */
+}
+
+/* 6. About page layout */
+.about-page {
+  background: rgb(155, 200, 247);
+}
+
+.about-container {
+  max-width: 500px;        /* readable column */
+  margin-left: 10%;       /* matches Home/Journey feel */
+  padding: 60px 0 60px; /* top & bottom breathing room */
+}
+
+/* About typography */
+.about-container h1 {
+  font-size: 1.5rem;
+  
+  font-weight: 600;
+  margin-bottom: 32px;
+}
+
+.about-container p {
+  font-size: 1.0rem;
+  line-height: 1.8;
+  margin-bottom: 28px;
+  color: #222;
+}
+
+
+/* 7. Site-footer Adjustments */
+.site-footer {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr; /* Gives the summary column more space */
+  gap: 60px; /* Adds more breathing room between columns */
+  text-align: left;
+  padding: 100px 5%; /* Increased top padding for a premium feel */
+  border-top: 1px solid #eee;
+  max-width: 1200px; /* Prevents it from stretching too wide on big monitors */
+  margin: 0 auto;
+}
+
+/* Clearer Header Styling */
+.site-footer h3 {
+  font-size: 1rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 24px !important;
+  color: #111;
+}
+
+/* The "Nuclear" fix that worked for your links */
+footer a,
+footer a:visited,
+footer a:link {
+  color: #666 !important;
+  text-decoration: none !important;
+  display: block; /* Stack links vertically */
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+footer a:hover {
+  color: #111 !important;
+  padding-left: 4px; /* Subtle movement effect on hover */
+}
+
+/* Copyright Section */
+.copyright-text {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #fafafa;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+/* Copyright Section */
+.copyright-text {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #fafafa;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+
+
+/* 8. Legal pages (Privacy & Terms) */
+
+.legal-page {
+  background: white;
+  min-height: 100vh;
+}
+
+.legal-container {
+  max-width: 720px;
+  margin-left: 10%;
+  padding: 120px 0;
+}
+
+.legal-container h1 {
+  font-size: 1rem;
+  font-style: normal;
+  margin-bottom: 32px;
+}
+
+.legal-container p {
+  font-size: 1rem;
+  line-height: 2;
+  margin-bottom: 24px;
+  color: #222;
+}
+
+.legal-note {
+  margin-top: 48px;
+  font-size: 0.9rem;
+  color: #777;
+}
+
