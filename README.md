@@ -19,10 +19,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Website Preview
 
 ### Home
-![Home](public/screenshot/website-home.jpg)
+<img src="public/screenshot/website-home.jpg" width="900">
 
 ### Deep Sight
-![Deep Sight](public/screenshot/deepsight.jpg)
+<img src="public/screenshot/deepsight.jpg" width="900">
 
 ## Getting Started
 
