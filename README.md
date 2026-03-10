@@ -1,8 +1,3 @@
-# Data Portfolio
-
-Live Website
-https://data-portfolio-pied.vercel.app
-
 ## Overview
 
 A personal data portfolio showcasing:
