@@ -19,7 +19,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Website Preview
 
 ### Home
-<img src="public/screenshot/website-home.jpg" width="900">
+
+<a href="https://data-portfolio-pied.vercel.app">
+  <img src="public/screenshot/website-home.jpg" width="900">
+</a>
 
 ### Deep Sight
 
