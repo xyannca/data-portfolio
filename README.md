@@ -28,7 +28,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 Live AI experience → https://data-portfolio-pied.vercel.app/deep-sight
 
-<img src="public/screenshot/deepsight.jpg" width="900">
+<a href="https://data-portfolio-pied.vercel.app/deep-sight">
+  <img src="public/screenshot/deepsight.jpg" width="900">
+</a>
 
 ## Getting Started
 
