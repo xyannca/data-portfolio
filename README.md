@@ -23,8 +23,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ### Deep Sight
 
-Live demo:  
-https://data-portfolio-pied.vercel.app/ai
+Live demo:
+https://data-portfolio-pied.vercel.app/deep-sight
 
 <img src="public/screenshot/deepsight.jpg" width="900">
 
