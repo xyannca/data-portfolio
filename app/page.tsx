@@ -52,7 +52,7 @@ export default function Home() {
               <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🧩</div>
               <h3 style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '15px' }}>Human-Centered Insights</h3>  
               <p style={{ color: '#171717', lineHeight: '1.6',  fontWeight: 'bold', marginBottom: '20px' }}>
-                Human behavior, presence, and awareness. 
+                Human Behavior and Awareness
               </p>
 
             </div>
@@ -109,9 +109,15 @@ export default function Home() {
             <img 
               src="/sky.jpg" 
               alt="Strategic Clarity" 
-              style={{ width: '70%', marginRight: '0', marginLeft: 'auto',borderRadius: '28px', opacity: 0.95, boxShadow: '0 6px 8px rgba(0,0,0,0.1)' }} 
-            />
-          </div>
+              style={{ width: '240px',
+                height: '240px',
+                marginLeft: 'auto',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                opacity: 0.95,
+                boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }} 
+              />
+            </div>
         
 
         {/* 3. Behavioral Insights Section Wrapper */}
