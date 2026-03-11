@@ -254,7 +254,7 @@ export default function Home() {
             <ul style={{ listStyle: 'none', padding: 0 }}>
               
               <li><Link href="/deep-sight" style={{ color: '#666', textDecoration: 'none' }}>AI Deep Sight Project</Link></li>
-              <li><a href="https://github.com/xyannca/powerbi-dashboard-portfolio"
+              <li><a href="https://github.com/xyannca"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-teal-600 transition-colors cursor-pointer"
