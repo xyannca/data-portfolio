@@ -18,7 +18,7 @@ export default function DashboardPage() {
           <div className="project-card" style={{ border: '1px solid #eee', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
             <Image src="/traffic-patterns.png" alt="Traffic Patterns Analysis" width={400} height={250} layout="responsive" />
             <div style={{ padding: '20px' }}>
-              <h3>Minnisota Traffic Patterns Analysis</h3>
+              <h3>Minnesota Traffic Patterns Analysis</h3>
               <p>
                 A Tableau dashboard analyzing peak traffic volumes, congestion hotspots, and temporal patterns to support data-driven urban infrastructure planning.
               </p>

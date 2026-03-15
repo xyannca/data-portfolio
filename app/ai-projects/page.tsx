@@ -38,7 +38,8 @@ export default function AIProjectsPage() {
             <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🍀</div>
             <h2 style={{ fontSize: '2.2rem', marginBottom: '15px' }}>DeepSight</h2>
             <p style={{ color: '#555', lineHeight: '1.7', fontSize: '1.1rem', marginBottom: '30px' }}>
-              The intersection of Zen and AI. Direct to the truth through psychological awareness and reflection.
+              A full-stack AI application built with Next.js, TypeScript, and LLM APIs, featuring real-time prompt engineering, session management, and an integrated analytics dashboard tracking user engagement patterns. 
+              
             </p>
             <Link href="/deep-sight" style={{ color: '#0066cc', fontWeight: '600', textDecoration: 'none', borderBottom: '2px solid #0066cc' }}>
               Enter Portal →
