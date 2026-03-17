@@ -41,9 +41,9 @@ export default function AIProjectsPage() {
             
             <h2 style={{ fontSize: '2.0rem', marginBottom: '15px' }}>DeepSight</h2>
 
-            <h1 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '20px', lineHeight: '1.3' }}>
+            <h1 style={{ fontSize: '1.1rem', color: '#14b8a6', fontWeight: '800', marginBottom: '20px', lineHeight: '1.3' }}>
               A non-judgmental mirror 
-              <span style={{ color: '#0066cc' }}> for your own mind.</span>
+              <span style={{ color: '#14b8a6' }}> for your own mind </span>
             </h1>
             
             {/*  */}
