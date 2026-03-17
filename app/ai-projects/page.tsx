@@ -33,14 +33,71 @@ export default function AIProjectsPage() {
             borderRadius: '30px', 
             border: '1px solid #f0f0f0',
             backgroundColor: '#ffffff',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+            textAlign: 'justify',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+           
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🍀</div>
-            <h2 style={{ fontSize: '2.2rem', marginBottom: '15px' }}>DeepSight</h2>
-            <p style={{ color: '#555', lineHeight: '1.7', fontSize: '1.1rem', marginBottom: '30px' }}>
-              A full-stack AI application built with Next.js, TypeScript, and LLM APIs, featuring real-time prompt engineering, session management, and an integrated analytics dashboard tracking user engagement patterns. 
-              
+            
+            <h2 style={{ fontSize: '2.0rem', marginBottom: '15px' }}>DeepSight</h2>
+
+            <h1 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '20px', lineHeight: '1.3' }}>
+              A non-judgmental mirror 
+              <span style={{ color: '#0066cc' }}> for your own mind.</span>
+            </h1>
+            
+            {/*  */}
+            <p style={{ 
+              fontStyle: 'italic', 
+              marginBottom: '25px', 
+              color: '#888', 
+              fontSize: '0.9rem',
+              fontFamily: 'Georgia, serif' 
+            }}>
+              No appointment. No waiting room. No shame. No bias. Just a rational mirror for your mind.
             </p>
+
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr', 
+              gap: '40px', 
+              marginTop: '40px', 
+              marginBottom: '40px',
+              borderTop: '1px solid #eee', 
+              borderBottom: '1px solid #eee',
+              padding: '30px 0'
+            }}>
+              
+              {/* The About */}
+              <div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The About</h3>
+                <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
+                  Over <strong>50%</strong> of people never seek help due to <strong>fear of being judged</strong>. DeepSight removes this barrier with total privacy and clinical depth.
+                </p>
+              </div>
+
+              {/* The Experience */}
+              <div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The Essence</h3>
+                <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
+                  An <strong>inner inquiry engine</strong> designed to reflect recursive mental patterns. It transforms AI into a silent, rational observer.
+                </p>
+              </div>
+            </div>
+
+            {/* tech */}
+            <div style={{ listStyle: 'none', padding: 0, marginBottom: '40px' }}>
+              {[
+                { label: 'Intelligence', desc: 'Custom LLM pipelines for objective pattern analysis.' },
+                { label: 'Architecture', desc: 'Built with Next.js & TypeScript for a seamless UX.' }
+              ].map((item, index) => (
+                <div key={index} style={{ display: 'flex', marginBottom: '8px', fontSize: '0.95rem', color: '#666' }}>
+                  <span style={{ marginRight: '10px', color: '#ccc' }}>•</span>
+                  <span><strong>{item.label}:</strong> {item.desc}</span>
+                </div>
+              ))}
+            </div>
+
             <Link href="/deep-sight" style={{ color: '#0066cc', fontWeight: '600', textDecoration: 'none', borderBottom: '2px solid #0066cc' }}>
               Enter Portal →
             </Link>
@@ -55,7 +112,7 @@ export default function AIProjectsPage() {
             opacity: 0.7
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🤖</div>
-            <h2 style={{ fontSize: '2.2rem', marginBottom: '15px', color: '#999' }}>Autonomous Insight Engine</h2>
+            <h2 style={{ fontSize: '2.0rem', marginBottom: '15px', color: '#999' }}>Autonomous Insight Engine</h2>
             <p style={{ color: '#888', lineHeight: '1.7', fontSize: '1.1rem', marginBottom: '30px' }}>
               Python, Streamlit, LLM Prompt Engineering, Automated ETL
             </p>
