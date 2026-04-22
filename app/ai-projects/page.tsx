@@ -27,7 +27,7 @@ export default function AIProjectsPage() {
           gap: '40px' 
         }}>
           
-          {/* Card 1: deep sight */}
+          {/* Card 1: DeepSight */}
           <div style={{ 
             padding: '50px', 
             borderRadius: '30px', 
@@ -35,7 +35,6 @@ export default function AIProjectsPage() {
             backgroundColor: '#ffffff',
             textAlign: 'justify',
             boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
-           
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🍀</div>
             
@@ -46,7 +45,6 @@ export default function AIProjectsPage() {
               <span style={{ color: '#14b8a6' }}> for your own mind </span>
             </h1>
             
-            {/*  */}
             <p style={{ 
               fontStyle: 'italic', 
               marginBottom: '25px', 
@@ -67,16 +65,12 @@ export default function AIProjectsPage() {
               borderBottom: '1px solid #eee',
               padding: '30px 0'
             }}>
-              
-              {/* The About */}
               <div>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The About</h3>
                 <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
                   Over <strong>50%</strong> of people never seek help due to <strong>fear of being judged</strong>. DeepSight removes this barrier with total privacy and clinical depth.
                 </p>
               </div>
-
-              {/* The Experience */}
               <div>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The Essence</h3>
                 <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
@@ -85,7 +79,6 @@ export default function AIProjectsPage() {
               </div>
             </div>
 
-            {/* tech */}
             <div style={{ listStyle: 'none', padding: 0, marginBottom: '40px' }}>
               {[
                 { label: 'Intelligence', desc: 'Custom LLM pipelines for objective pattern analysis.' },
@@ -103,22 +96,73 @@ export default function AIProjectsPage() {
             </Link>
           </div>
 
-          {/* Card 2: Career Intelligence Engine */}
+          {/* Card 2: ClearSight */}
           <div style={{ 
             padding: '50px', 
             borderRadius: '30px', 
             border: '1px solid #f0f0f0',
             backgroundColor: '#ffffff',
-            opacity: 0.7
+            textAlign: 'justify',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🤖</div>
-            <h2 style={{ fontSize: '2.0rem', marginBottom: '15px', color: '#999' }}>Autonomous Insight Engine</h2>
-            <p style={{ color: '#888', lineHeight: '1.7', fontSize: '1.1rem', marginBottom: '30px' }}>
-              Python, Streamlit, LLM Prompt Engineering, Automated ETL
+            <div style={{ fontSize: '3rem', marginBottom: '20px' }}>📊</div>
+            
+            <h2 style={{ fontSize: '2.0rem', marginBottom: '15px' }}>ClearSight</h2>
+
+            <h1 style={{ fontSize: '1.1rem', color: '#14b8a6', fontWeight: '800', marginBottom: '20px', lineHeight: '1.3' }}>
+              AI-powered call center analytics
+              <span style={{ color: '#14b8a6' }}> with cross-filtering insights </span>
+            </h1>
+            
+            <p style={{ 
+              fontStyle: 'italic', 
+              marginBottom: '25px', 
+              color: '#888', 
+              fontSize: '0.9rem',
+              fontFamily: 'Georgia, serif' 
+            }}>
+              From raw call data to executive decisions — in seconds.
             </p>
-            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#ccc', textTransform: 'uppercase', letterSpacing: '2px' }}>
-              Coming Soon
-            </span>
+
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr', 
+              gap: '40px', 
+              marginTop: '40px', 
+              marginBottom: '40px',
+              borderTop: '1px solid #eee', 
+              borderBottom: '1px solid #eee',
+              padding: '30px 0'
+            }}>
+              <div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The About</h3>
+                <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
+                  A <strong>91.4% repeat call rate</strong> signals a first-call resolution crisis. ClearSight surfaces anomalies, benchmarks, and root causes instantly.
+                </p>
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The Essence</h3>
+                <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
+                  An <strong>interactive BI dashboard</strong> with AI chat, anomaly detection, and cross-filtering — powered by Claude.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ listStyle: 'none', padding: 0, marginBottom: '40px' }}>
+              {[
+                { label: 'Intelligence', desc: 'Claude-powered AI chat and executive insights.' },
+                { label: 'Architecture', desc: 'Next.js, TypeScript, cross-filtering heatmap dashboard.' }
+              ].map((item, index) => (
+                <div key={index} style={{ display: 'flex', marginBottom: '8px', fontSize: '0.95rem', color: '#666' }}>
+                  <span style={{ marginRight: '10px', color: '#ccc' }}>•</span>
+                  <span><strong>{item.label}:</strong> {item.desc}</span>
+                </div>
+              ))}
+            </div>
+
+            <Link href="/clearsight" style={{ color: '#0066cc', fontWeight: '600', textDecoration: 'none', borderBottom: '2px solid #0066cc' }}>
+              Open Dashboard →
+            </Link>
           </div>
 
         </div>

@@ -1,9 +1,11 @@
 "use client";
 // app/clearsight/page.tsx
 // Complete ClearSight v3 — Dashboard + AI Insights + AI Chat + AI Generator + PDF Export
-// Replace your existing app/clearsight/page.tsx with this file entirely
+// FIXED: BarChart now receives filters/toggle as props (was referencing outer scope variables)
+// FIXED: quickAsk now directly calls sendChat instead of synthetic keyboard event
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
 // ── TYPES ──
 type DataRow = { month: string; market: string; type: string; calls: number; rr: number };
@@ -93,28 +95,54 @@ const CHAT_RESPONSES: Record<string, string> = {
   default: "Based on the data, the most urgent issue is the 91.4% overall repeat call rate. I recommend focusing on market_2 × type_3 first as the highest-priority anomaly, then replicating market_3 × type_1 best practices across all segments.",
 };
 
-
 // ── BAR CHART (CSS) ──
-  function BarChart({ labels, values, colors, filterDim }: { labels: string[]; values: number[]; colors: string[]; filterDim: keyof Filters }) {
-    const max = Math.max(...values, 1);
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-        {labels.map((l, i) => {
-          const sel = filters[filterDim] === l;
-          const dim = filters[filterDim] && !sel;
-          return (
-            <div key={l} onClick={() => toggle(filterDim, l)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 6px", borderRadius: 6, cursor: "pointer", opacity: dim ? 0.2 : 1, background: sel ? "#f0fdfa" : "transparent", border: `1.5px solid ${sel ? "#99f6e4" : "transparent"}`, transition: "all 0.12s" }}>
-              <span style={{ fontSize: 11, color: sel ? "#0f766e" : "#475569", minWidth: 72, fontWeight: sel ? 500 : 400 }}>{l.replace("market_", "mkt_").replace("January", "Jan").replace("February", "Feb").replace("March", "Mar")}</span>
-              <div style={{ flex: 1, height: 20, background: "#f1f3f5", borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.round(values[i] / max * 100)}%`, background: colors[i % colors.length], borderRadius: 4, transition: "width 0.3s" }} />
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 500, color: sel ? "#0f766e" : "#475569", minWidth: 44, textAlign: "right" }}>{fmtK(values[i])}</span>
+// FIX: Now receives filters and toggle as props instead of closing over outer scope variables
+function BarChart({
+  labels,
+  values,
+  colors,
+  filterDim,
+  filters,
+  toggle,
+}: {
+  labels: string[];
+  values: number[];
+  colors: string[];
+  filterDim: keyof Filters;
+  filters: Filters;
+  toggle: (dim: keyof Filters, val: string) => void;
+}) {
+  const max = Math.max(...values, 1);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+      {labels.map((l, i) => {
+        const sel = filters[filterDim] === l;
+        const dim = filters[filterDim] && !sel;
+        return (
+          <div
+            key={l}
+            onClick={() => toggle(filterDim, l)}
+            style={{
+              display: "flex", alignItems: "center", gap: 8, padding: "3px 6px",
+              borderRadius: 6, cursor: "pointer", opacity: dim ? 0.2 : 1,
+              background: sel ? "#f0fdfa" : "transparent",
+              border: `1.5px solid ${sel ? "#99f6e4" : "transparent"}`,
+              transition: "all 0.12s",
+            }}
+          >
+            <span style={{ fontSize: 11, color: sel ? "#0f766e" : "#475569", minWidth: 72, fontWeight: sel ? 500 : 400 }}>
+              {l.replace("market_", "mkt_").replace("January", "Jan").replace("February", "Feb").replace("March", "Mar")}
+            </span>
+            <div style={{ flex: 1, height: 20, background: "#f1f3f5", borderRadius: 4, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${Math.round(values[i] / max * 100)}%`, background: colors[i % colors.length], borderRadius: 4, transition: "width 0.3s" }} />
             </div>
-          );
-        })}
-      </div>
-    );
-  }
+            <span style={{ fontSize: 11, fontWeight: 500, color: sel ? "#0f766e" : "#475569", minWidth: 44, textAlign: "right" }}>{fmtK(values[i])}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // ── MAIN COMPONENT ──
 export default function ClearSightPage() {
@@ -134,6 +162,11 @@ export default function ClearSightPage() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMsgs]);
 
+  useEffect(() => {
+    document.body.classList.add("page-clearsight");
+    return () => document.body.classList.remove("page-clearsight");
+  }, []);
+
   // ── FILTER LOGIC ──
   const filtered = RAW.filter(r =>
     (!filters.month || r.month === filters.month) &&
@@ -151,20 +184,10 @@ export default function ClearSightPage() {
   }
   function clearFilters() { setFilters({ month: null, market: null, type: null }); }
 
-  // ── AGGREGATION ──
-  function aggBy(dim: keyof DataRow, metric: keyof DataRow, data: DataRow[]) {
-    const result: Record<string, number> = {};
-    data.forEach(r => {
-      const k = String(r[dim]);
-      result[k] = (result[k] || 0) + (Number(r[metric]) || 0);
-    });
-    return result;
-  }
-
   // ── AI CHAT ──
-  async function sendChat() {
-    if (!chatInput.trim() || chatLoading) return;
-    const q = chatInput.trim();
+  // FIX: Extracted sendChatWithMessage so it can be called directly with a question string
+  async function sendChatWithMessage(q: string) {
+    if (!q.trim() || chatLoading) return;
     setChatInput("");
     setChatMsgs(m => [...m, { role: "user", text: q }]);
     setChatLoading(true);
@@ -187,15 +210,24 @@ export default function ClearSightPage() {
     setChatLoading(false);
   }
 
-  function quickAsk(q: string) { setChatInput(q); setTimeout(() => { document.getElementById("ci")?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" })); }, 100); }
+  async function sendChat() {
+    await sendChatWithMessage(chatInput.trim());
+  }
+
+  // FIX: quickAsk now directly calls sendChatWithMessage instead of relying on synthetic keyboard events
+  function quickAsk(q: string) {
+    sendChatWithMessage(q);
+  }
 
   // ── AI GENERATOR ──
   async function generateDashboard() {
     if (!genApiKey.startsWith("sk-ant")) return;
     setGenLoading(true); setGenCode("");
-    const userRequest = genMode === "auto" ? "Automatically choose the best dashboard layout for this call center data."
-      : genMode === "screenshot" && genScreenshot ? (document.getElementById("ss-extra") as HTMLTextAreaElement)?.value || "Recreate the layout from the screenshot with this data."
-      : genPrompt || "Create a professional dashboard with cross-filtering.";
+    const userRequest = genMode === "auto"
+      ? "Automatically choose the best dashboard layout for this call center data."
+      : genMode === "screenshot" && genScreenshot
+        ? (document.getElementById("ss-extra") as HTMLTextAreaElement)?.value || "Recreate the layout from the screenshot with this data."
+        : genPrompt || "Create a professional dashboard with cross-filtering.";
     const systemPrompt = `You are a dashboard code generator. Generate a complete single-file HTML dashboard.
 REQUIREMENTS: Cross-filtering on all charts, KPI cards, 3-4 charts, professional design matching user request.
 Use Chart.js from cdnjs or pure CSS bars. Return ONLY complete HTML, no markdown, no backticks.
@@ -232,14 +264,13 @@ Generate complete HTML now:`;
 
   // ── STYLES ──
   const s = {
-    topbar: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", height: 54, borderBottom: "1px solid #e5e7eb", background: "#fff", position: "sticky" as const, top: 0, zIndex: 10 },
+    topbar: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", height: 54, borderBottom: "1px solid #e5e7eb", background: "#fff", position: "sticky" as const, top: 0, zIndex: 9 },
     logo: { display: "flex", alignItems: "center", gap: 8 },
     logoMark: { width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #0d9488", display: "flex", alignItems: "center", justifyContent: "center" },
     logoDot: { width: 7, height: 7, borderRadius: "50%", background: "#0d9488" },
     logoName: { fontFamily: "'DM Serif Display', serif", fontSize: 16, color: "#0f172a" },
     badge: (color: string) => ({ fontSize: 10, padding: "2px 9px", borderRadius: 99, fontWeight: 500, background: color === "teal" ? "#f0fdfa" : "#f1f3f5", color: color === "teal" ? "#0f766e" : "#475569", border: `1px solid ${color === "teal" ? "#99f6e4" : "#e5e7eb"}` }),
     btnSm: { fontFamily: "Inter, sans-serif", fontSize: 11, padding: "5px 12px", borderRadius: 8, border: "1px solid #d1d5db", background: "#fff", color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 } as React.CSSProperties,
-    btnPrimary: { fontFamily: "Inter, sans-serif", fontSize: 11, padding: "5px 12px", borderRadius: 8, border: "1px solid #0d9488", background: "#0d9488", color: "#fff", cursor: "pointer" } as React.CSSProperties,
     tabBtn: (active: boolean) => ({ fontFamily: "Inter, sans-serif", fontSize: 12, fontWeight: 500, padding: "10px 16px", border: "none", background: "transparent", cursor: "pointer", color: active ? "#0d9488" : "#94a3b8", borderBottom: active ? "2px solid #0d9488" : "2px solid transparent", marginBottom: -1, transition: "all 0.15s", letterSpacing: "0.02em" } as React.CSSProperties),
     content: { padding: "16px 20px", display: "flex", flexDirection: "column" as const, gap: 12 },
     card: { background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 15, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" },
@@ -257,17 +288,20 @@ Generate complete HTML now:`;
       : { background: "#f0fdf4", color: "#15803d" };
   }
 
-  
-
   return (
-    <div style={{ fontFamily: "Inter, sans-serif", background: "#f8f9fa", minHeight: "100vh", color: "#0f172a" }}>
+    <div style={{ fontFamily: "Inter, sans-serif", background: "#f8f9fa", minHeight: "100vh", color: "#0f172a"}} className="clearsight-wrapper">
 
       {/* TOPBAR */}
       <div style={s.topbar}>
-        <div style={s.logo}>
-          <div style={s.logoMark}><div style={s.logoDot} /></div>
-          <span style={s.logoName}>ClearSight</span>
-          <span style={{ fontSize: 10, color: "#94a3b8", letterSpacing: "0.06em", textTransform: "uppercase", marginLeft: 3 }}>· AI Analytics</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <Link href="/" style={{ fontSize: 11, color: "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4, fontWeight: 500, letterSpacing: "0.03em" }}>
+            ← Home
+          </Link>
+          <div style={s.logo}>
+            <div style={s.logoMark}><div style={s.logoDot} /></div>
+            <span style={s.logoName}>ClearSight</span>
+            <span style={{ fontSize: 10, color: "#94a3b8", letterSpacing: "0.06em", textTransform: "uppercase" as const, marginLeft: 3 }}>· AI Analytics</span>
+          </div>
         </div>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <span style={s.badge("gray")}>{sumC(filtered).toLocaleString()} calls</span>
@@ -325,11 +359,25 @@ Generate complete HTML now:`;
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div style={s.card}>
               <div style={s.cardTitle}>Calls by Month <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click to filter</span></div>
-              <BarChart labels={MONTHS} values={MONTHS.map(m => sumC(filtered.filter(r => r.month === m)))} colors={["#0d9488", "#2563eb", "#7c3aed"]} filterDim="month" />
+              <BarChart
+                labels={MONTHS}
+                values={MONTHS.map(m => sumC(filtered.filter(r => r.month === m)))}
+                colors={["#0d9488", "#2563eb", "#7c3aed"]}
+                filterDim="month"
+                filters={filters}
+                toggle={toggle}
+              />
             </div>
             <div style={s.card}>
               <div style={s.cardTitle}>Volume by Market <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click to filter</span></div>
-              <BarChart labels={MARKETS} values={MARKETS.map(m => sumC(filtered.filter(r => r.market === m)))} colors={MCOLORS} filterDim="market" />
+              <BarChart
+                labels={MARKETS}
+                values={MARKETS.map(m => sumC(filtered.filter(r => r.market === m)))}
+                colors={MCOLORS}
+                filterDim="market"
+                filters={filters}
+                toggle={toggle}
+              />
             </div>
           </div>
 
@@ -337,7 +385,14 @@ Generate complete HTML now:`;
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div style={s.card}>
               <div style={s.cardTitle}>Volume by Call Type <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click to filter</span></div>
-              <BarChart labels={TYPES} values={TYPES.map(t => sumC(filtered.filter(r => r.type === t)))} colors={TCOLORS} filterDim="type" />
+              <BarChart
+                labels={TYPES}
+                values={TYPES.map(t => sumC(filtered.filter(r => r.type === t)))}
+                colors={TCOLORS}
+                filterDim="type"
+                filters={filters}
+                toggle={toggle}
+              />
             </div>
             <div style={s.card}>
               <div style={s.cardTitle}>Repeat Rate by Market <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click to filter</span></div>
@@ -346,6 +401,8 @@ Generate complete HTML now:`;
                 values={MARKETS.map(m => { const d = filtered.filter(r => r.market === m); return d.length ? +avgR(d).toFixed(1) : 0; })}
                 colors={MCOLORS}
                 filterDim="market"
+                filters={filters}
+                toggle={toggle}
               />
             </div>
           </div>
@@ -373,7 +430,14 @@ Generate complete HTML now:`;
                         const rate = heatmapRate(mkt, tp);
                         const isSel = filters.market === mkt && filters.type === tp;
                         return (
-                          <td key={tp} onClick={() => { if (filters.market === mkt && filters.type === tp) { setFilters(f => ({ ...f, market: null, type: null })); } else { setFilters(f => ({ ...f, market: mkt, type: tp })); } }}
+                          <td key={tp}
+                            onClick={() => {
+                              if (filters.market === mkt && filters.type === tp) {
+                                setFilters(f => ({ ...f, market: null, type: null }));
+                              } else {
+                                setFilters(f => ({ ...f, market: mkt, type: tp }));
+                              }
+                            }}
                             style={{ padding: "7px 8px", textAlign: "center", fontWeight: 500, borderBottom: "1px solid #e5e7eb", cursor: "pointer", ...(rate !== null ? heatmapClass(rate) : {}), ...(isSel ? { outline: "2px solid #0d9488", outlineOffset: -1, background: "#f0fdfa", color: "#0f766e" } : {}) }}>
                             {rate !== null ? rate.toFixed(2) : "—"}
                           </td>
@@ -421,7 +485,11 @@ Generate complete HTML now:`;
             {activeInsight && (
               <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "12px 14px", marginTop: 10 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: "#0f766e", marginBottom: 6 }}>{INSIGHTS[activeInsight].title}</div>
-                <div style={{ fontSize: 12, color: "#0f172a", lineHeight: 1.7 }}>{INSIGHTS[activeInsight].body.split("\n\n").map((p, i) => <p key={i} style={{ marginBottom: i < INSIGHTS[activeInsight].body.split("\n\n").length - 1 ? 8 : 0 }}>{p}</p>)}</div>
+                <div style={{ fontSize: 12, color: "#0f172a", lineHeight: 1.7 }}>
+                  {INSIGHTS[activeInsight].body.split("\n\n").map((p, i, arr) => (
+                    <p key={i} style={{ marginBottom: i < arr.length - 1 ? 8 : 0 }}>{p}</p>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -437,7 +505,11 @@ Generate complete HTML now:`;
             </div>
             <div style={s.card}>
               <div style={s.cardTitle}>Recommended Actions</div>
-              {[["Urgent", "#dc2626", "Investigate market_2 × type_3 this week — pull recordings, identify top 3 failure patterns"], ["High Priority", "#d97706", "Replicate market_3 × type_1 practices across all segments within 30 days"], ["Strategic", "#0d9488", "type_5 is 47% of all calls — even 30% FCR improvement eliminates ~17K repeat calls/quarter"]].map(([level, color, text]) => (
+              {[
+                ["Urgent", "#dc2626", "Investigate market_2 × type_3 this week — pull recordings, identify top 3 failure patterns"],
+                ["High Priority", "#d97706", "Replicate market_3 × type_1 practices across all segments within 30 days"],
+                ["Strategic", "#0d9488", "type_5 is 47% of all calls — even 30% FCR improvement eliminates ~17K repeat calls/quarter"],
+              ].map(([level, color, text]) => (
                 <div key={String(level)} style={{ padding: "8px 10px", background: "#f8f9fa", borderRadius: 8, borderLeft: `3px solid ${color}`, marginBottom: 6 }}>
                   <div style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: String(color), marginBottom: 3, fontWeight: 500 }}>{level}</div>
                   <div style={{ fontSize: 12, color: "#0f172a", lineHeight: 1.5 }}>{text}</div>
@@ -469,13 +541,27 @@ Generate complete HTML now:`;
               )}
               <div ref={chatEndRef} />
             </div>
+            {/* Quick-ask chips */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 5, padding: "0 14px 10px" }}>
               {["Why is FCR only 8.6%?", "Which market is most critical?", "What should management do?", "Explain market_2 × type_3"].map(q => (
-                <span key={q} onClick={() => { setChatInput(q); setTimeout(sendChat, 100); }} style={{ fontSize: 11, padding: "3px 10px", borderRadius: 99, border: "1px solid #e5e7eb", background: "#fff", color: "#475569", cursor: "pointer" }}>{q}</span>
+                <span
+                  key={q}
+                  onClick={() => quickAsk(q)}
+                  style={{ fontSize: 11, padding: "3px 10px", borderRadius: 99, border: "1px solid #e5e7eb", background: "#fff", color: "#475569", cursor: "pointer" }}
+                >
+                  {q}
+                </span>
               ))}
             </div>
             <div style={{ borderTop: "1px solid #e5e7eb", padding: "10px 14px", display: "flex", gap: 7 }}>
-              <input id="ci" value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} placeholder="Ask anything about your data..." style={{ flex: 1, border: "1px solid #d1d5db", borderRadius: 8, padding: "8px 12px", fontSize: 13, fontFamily: "Inter, sans-serif", outline: "none", color: "#0f172a" }} />
+              <input
+                id="ci"
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && sendChat()}
+                placeholder="Ask anything about your data..."
+                style={{ flex: 1, border: "1px solid #d1d5db", borderRadius: 8, padding: "8px 12px", fontSize: 13, fontFamily: "Inter, sans-serif", outline: "none", color: "#0f172a" }}
+              />
               <button onClick={sendChat} disabled={chatLoading} style={{ width: 34, height: 34, borderRadius: 8, background: "#0d9488", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M2 21l21-9L2 3v7l15 2-15 2z" /></svg>
               </button>
@@ -487,78 +573,46 @@ Generate complete HTML now:`;
       {/* ── GENERATOR TAB ── */}
       {tab === "generator" && (
         <div style={s.content}>
+          {/* Card 0 — replaces API key input */}
           <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid #e5e7eb" }}>
-              <div style={{ width: 22, height: 22, borderRadius: "50%", background: genApiKey.startsWith("sk-ant") ? "#0d9488" : "#f1f3f5", color: genApiKey.startsWith("sk-ant") ? "#fff" : "#94a3b8", fontSize: 10, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>0</div>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>Claude API Key</span>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#f0fdfa", border: "1px solid #99f6e4", fontSize: 9, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#0f766e" }}>✨</div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>Available in Full Version</span>
+              <span style={{ marginLeft: "auto", fontSize: 10, padding: "2px 9px", borderRadius: 99, background: "#f0fdfa", color: "#0f766e", border: "1px solid #99f6e4", fontWeight: 500 }}>Demo</span>
             </div>
-            <div style={{ padding: 14 }}>
-              <input type="password" placeholder="sk-ant-api03-..." value={genApiKey} onChange={e => setGenApiKey(e.target.value)} style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 8, padding: "8px 12px", fontSize: 12, fontFamily: "monospace", outline: "none", color: "#0f172a" }} />
-              <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 5, lineHeight: 1.5 }}>Your key stays in your browser only. Get yours at <strong>console.anthropic.com</strong></p>
+            <div style={{ padding: "14px 16px" }}>
+              <p style={{ fontSize: 12, color: "#475569", lineHeight: 1.7, margin: 0 }}>
+                The AI Dashboard Generator is fully built and operational. In this portfolio demo it is disabled for security. To see a live walkthrough or discuss integration, contact the developer below.
+              </p>
+              <a href="mailto:xyannca@gmail.com" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 12, color: "#0d9488", fontWeight: 500, textDecoration: "none" }}>
+                📩 Contact for full version access
+              </a>
             </div>
           </div>
-
-          <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
+          {/* Card 1 — describe your dashboard (visual preview, inputs disabled) */}
+          <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden", opacity: 0.5, pointerEvents: "none" as const }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid #e5e7eb" }}>
               <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#0d9488", color: "#fff", fontSize: 10, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>1</div>
               <span style={{ fontSize: 13, fontWeight: 600 }}>Describe Your Dashboard</span>
             </div>
             <div style={{ padding: 14 }}>
               <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-                {(["prompt", "screenshot", "auto"] as GenMode[]).map((m, i) => (
-                  <button key={m} onClick={() => setGenMode(m)} style={{ fontFamily: "Inter, sans-serif", fontSize: 11, padding: "5px 12px", borderRadius: 99, border: "1px solid #d1d5db", background: genMode === m ? "#0d9488" : "#fff", color: genMode === m ? "#fff" : "#475569", cursor: "pointer", fontWeight: 500, transition: "all 0.15s" }}>
-                    {["✏️ Text Prompt", "🖼️ Screenshot", "✨ AI Decides"][i]}
-                  </button>
+                {["✏️ Text Prompt", "🖼️ Screenshot", "✨ AI Decides"].map((label, i) => (
+                  <div key={i} style={{ fontSize: 11, padding: "5px 12px", borderRadius: 99, border: "1px solid #d1d5db", background: i === 0 ? "#0d9488" : "#fff", color: i === 0 ? "#fff" : "#475569", fontWeight: 500 }}>{label}</div>
                 ))}
               </div>
-              {genMode === "prompt" && (
-                <>
-                  <textarea value={genPrompt} onChange={e => setGenPrompt(e.target.value)} placeholder="Describe your dashboard..." style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 8, padding: "9px 12px", fontSize: 12, fontFamily: "Inter, sans-serif", resize: "vertical", minHeight: 70, outline: "none", color: "#0f172a" }} />
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 7 }}>
-                    {["Dark executive dashboard with KPI cards and cross-filtering", "Clean minimal white dashboard with donut charts", "Power BI style blue theme with grouped bar charts", "Sales dashboard with monthly trend and regional comparison"].map(p => (
-                      <span key={p} onClick={() => setGenPrompt(p)} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 99, border: "1px solid #e5e7eb", background: "#fff", color: "#475569", cursor: "pointer" }}>{p.slice(0, 28)}...</span>
-                    ))}
-                  </div>
-                </>
-              )}
-              {genMode === "screenshot" && (
-                <div>
-                  <p style={{ fontSize: 12, color: "#475569", marginBottom: 8, lineHeight: 1.6 }}>Upload a Power BI or Tableau screenshot — Claude Vision reads the layout and recreates it with your data.</p>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, padding: 12, border: "1.5px dashed #d1d5db", borderRadius: 8, cursor: "pointer" }}>
-                    <span style={{ fontSize: 18 }}>🖼️</span>
-                    <span style={{ fontSize: 12, color: "#475569" }}>{genScreenshot ? "✓ Screenshot uploaded" : "Click to upload dashboard screenshot (PNG, JPG)"}</span>
-                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && handleScreenshotUpload(e.target.files[0])} />
-                  </label>
-                  <textarea id="ss-extra" placeholder="Additional instructions (optional)" style={{ width: "100%", marginTop: 8, border: "1px solid #d1d5db", borderRadius: 8, padding: "8px 12px", fontSize: 12, fontFamily: "Inter, sans-serif", minHeight: 50, outline: "none", color: "#0f172a" }} />
-                </div>
-              )}
-              {genMode === "auto" && (
-                <div style={{ padding: 16, background: "#f0fdfa", border: "1px solid #99f6e4", borderRadius: 8, textAlign: "center" }}>
-                  <div style={{ fontSize: 18, marginBottom: 6 }}>✨</div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "#0f766e", marginBottom: 4 }}>AI will decide everything</div>
-                  <div style={{ fontSize: 12, color: "#475569", lineHeight: 1.6 }}>Claude analyses your data schema and generates the optimal dashboard automatically.</div>
-                </div>
-              )}
+              <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 8, padding: "9px 12px", fontSize: 12, minHeight: 70, color: "#94a3b8", background: "#f8f9fa" }}>Describe your dashboard...</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 7 }}>
+                {["Dark executive dashboard wit...", "Clean minimal white dashboar...", "Power BI style blue theme wi...", "Sales dashboard with monthly..."].map(p => (
+                  <span key={p} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 99, border: "1px solid #e5e7eb", background: "#fff", color: "#475569" }}>{p}</span>
+                ))}
+              </div>
             </div>
           </div>
-
-          <button onClick={generateDashboard} disabled={!genApiKey.startsWith("sk-ant") || genLoading}
-            style={{ width: "100%", padding: 13, background: genApiKey.startsWith("sk-ant") ? "#0d9488" : "#94a3b8", color: "#fff", border: "none", borderRadius: 12, fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif", cursor: genApiKey.startsWith("sk-ant") ? "pointer" : "not-allowed", letterSpacing: "0.04em", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-            {genLoading ? "⏳ Generating..." : "✨ Generate AI Dashboard"}
-          </button>
-
-          {genCode && (
-            <div style={{ background: "#fff", border: "1px solid #99f6e4", borderRadius: 12, overflow: "hidden" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#f0fdfa", borderBottom: "1px solid #99f6e4" }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "#0f766e", letterSpacing: "0.04em" }}>✓ AI GENERATED — INTERACTIVE DASHBOARD</span>
-                <div style={{ display: "flex", gap: 5 }}>
-                  <button onClick={generateDashboard} style={s.btnSm}>↻ Regenerate</button>
-                  <button onClick={() => navigator.clipboard.writeText(genCode).then(() => alert("Code copied!"))} style={s.btnSm}>⟨/⟩ Copy Code</button>
-                </div>
-              </div>
-              <iframe srcDoc={genCode} style={{ width: "100%", border: "none", minHeight: 500, display: "block" }} sandbox="allow-scripts allow-same-origin" />
-            </div>
-          )}
+          {/* Generate button — disabled */}
+          <div style={{ width: "100%", padding: 13, background: "#94a3b8", color: "#fff", borderRadius: 12, fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+            ✨ Generate AI Dashboard — Available in Full Version
+          </div>
         </div>
       )}
     </div>

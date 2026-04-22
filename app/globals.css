@@ -362,3 +362,27 @@ footer a:hover {
   color: #777;
 }
 
+@media print {
+  .nav-bar {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  body {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  div[style*="paddingTop"] {
+    padding-top: 0 !important;
+  }
+  .clearsight-wrapper {
+    padding-top: 0 !important;
+  }
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+body.page-clearsight .nav-bar {
+  display: none;
+}
