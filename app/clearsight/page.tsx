@@ -368,7 +368,7 @@ export default function ClearSightPage() {
   function heatmapClass(v: number): React.CSSProperties { return v >= 94 ? { background: "#fef2f2", color: "#dc2626" } : v >= 80 ? { background: "#fff7ed", color: "#c2410c" } : { background: "#f0fdf4", color: "#15803d" }; }
 
   return (
-    <div style={{ fontFamily: "Inter, sans-serif", background: "#f8f9fa", minHeight: "100vh", color: "#0f172a" }} className="clearsight-wrapper">
+    <div style={{ fontFamily: "Inter, sans-serif", background: "#f8f9fa", minHeight: "100vh", color: "#0f172a",  maxWidth: 1400, margin: "0 auto" }} className="clearsight-wrapper">
       <div style={s.topbar}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Link href="/ai-projects" style={{ fontSize: 11, color: "#94a3b8", textDecoration: "none", display: "flex", alignItems: "center", gap: 4, fontWeight: 500, letterSpacing: "0.03em" }}>← AI Projects</Link>
