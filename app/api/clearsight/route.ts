@@ -1,10 +1,12 @@
-// app/api/claude/route.ts
-// Place this file at: app/api/claude/route.ts in your Next.js project
-
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { prompt } = await req.json();
+
+  // Basic protection — limit prompt length
+  if (!prompt || prompt.length > 1000) {
+    return NextResponse.json({ text: "Invalid request." }, { status: 400 });
+  }
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",

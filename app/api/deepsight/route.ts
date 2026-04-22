@@ -31,6 +31,7 @@ export async function POST(req: Request) {
     const token = authHeader.replace("Bearer ", "");
     const decoded = await getAuth().verifyIdToken(token);
 
+
     // --- test token decoding ---
     if (!decoded || !decoded.uid) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -41,7 +42,19 @@ export async function POST(req: Request) {
     // Add this line to see the incoming UID in your terminal
     console.log("API request uid:", uid);
 
-    const { message, chatHistory, mode } = await req.json();
+    const body = await req.json(); // 1. body
+    const { message, chatHistory, mode } = body; // 2. 
+
+    // 3. 
+    console.log("Current message length:", message.length);
+    if (message && message.length > 8000) {
+      return NextResponse.json(
+        { error: "The thoughts are too vast. Please keep under 2000 characters." }, 
+        { status: 400 }
+      );
+    }
+ 
+        
 
     // --- 2.5 limit to 10 requests per minute per user (except owner) ---
     const minuteKey = new Date().toISOString().slice(0, 16); 

@@ -283,7 +283,7 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
       setChatHistory(prev => [
         ...prev, 
         { role: 'user', text: message }, 
-        { role: 'master', text: "The stream is too deep to cross right now. Please try a shorter inquiry." }
+        { role: 'master', text: "Today's AI quota has been reached. Please try again later." }
       ]);
     } finally { 
       setIsProcessing(false); 

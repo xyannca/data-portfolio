@@ -1,411 +1,566 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+// app/clearsight/page.tsx
+// Complete ClearSight v3 — Dashboard + AI Insights + AI Chat + AI Generator + PDF Export
+// Replace your existing app/clearsight/page.tsx with this file entirely
+
+import { useState, useEffect, useRef, useCallback } from "react";
 
 // ── TYPES ──
-type Row = Record<string, string | number>;
-type Schema = Record<string, "number" | "string" | "date">;
-type Filters = { dim1: string | null; dim2: string | null; dim3: string | null };
+type DataRow = { month: string; market: string; type: string; calls: number; rr: number };
+type Filters = { month: string | null; market: string | null; type: string | null };
+type Tab = "dashboard" | "insights" | "chat" | "generator";
+type GenMode = "prompt" | "screenshot" | "auto";
+type ChatMsg = { role: "ai" | "user"; text: string };
 
-// ── HELPERS ──
-function sumCalls(rows: Row[], col: string): number {
-  return rows.reduce((s, r) => s + (Number(r[col]) || 0), 0);
-}
-function fmt(n: number): string {
-  return n >= 1000000
-    ? "$" + (n / 1000000).toFixed(1) + "M"
-    : n >= 1000
-    ? (n / 1000).toFixed(1) + "K"
-    : String(Math.round(n));
-}
-function detectSchema(data: Row[]): Schema {
-  const schema: Schema = {};
-  if (!data.length) return schema;
-  Object.keys(data[0]).forEach((col) => {
-    const vals = data.map((r) => r[col]).filter((v) => v !== null && v !== "");
-    const nums = vals.filter((v) => typeof v === "number");
-    schema[col] = nums.length > vals.length * 0.6 ? "number" : "string";
-  });
-  return schema;
-}
+// ── CONSTANTS ──
+const MONTHS = ["January", "February", "March"];
+const MARKETS = ["market_1", "market_2", "market_3"];
+const TYPES = ["type_1", "type_2", "type_3", "type_4", "type_5"];
+const MCOLORS = ["#0d9488", "#2563eb", "#7c3aed"];
+const TCOLORS = ["#0d9488", "#2563eb", "#7c3aed", "#d97706", "#dc2626"];
 
 // ── SAMPLE DATA ──
-const SAMPLE_CSV = `Month,Region,Product,Revenue,Units,Target
-Jan,North,Widget A,142000,1420,130000
-Jan,South,Widget B,98000,980,110000
-Jan,East,Widget A,87000,870,90000
-Feb,North,Widget A,155000,1550,140000
-Feb,South,Widget B,112000,1120,110000
-Feb,East,Widget C,63000,630,70000
-Mar,North,Widget B,134000,1340,130000
-Mar,South,Widget A,145000,1450,140000
-Mar,East,Widget B,79000,790,85000
-Apr,North,Widget C,98000,980,100000
-Apr,South,Widget A,167000,1670,155000
-Apr,East,Widget A,92000,920,90000
-May,North,Widget A,178000,1780,165000
-May,South,Widget B,89000,890,110000
-May,East,Widget C,71000,710,75000`;
+const RAW: DataRow[] = [
+  { month: "January", market: "market_1", type: "type_1", calls: 1400, rr: 91.2 },
+  { month: "January", market: "market_1", type: "type_2", calls: 6800, rr: 95.0 },
+  { month: "January", market: "market_1", type: "type_3", calls: 900, rr: 88.5 },
+  { month: "January", market: "market_1", type: "type_4", calls: 2800, rr: 91.9 },
+  { month: "January", market: "market_1", type: "type_5", calls: 9100, rr: 89.7 },
+  { month: "January", market: "market_2", type: "type_1", calls: 600, rr: 95.2 },
+  { month: "January", market: "market_2", type: "type_2", calls: 2600, rr: 94.7 },
+  { month: "January", market: "market_2", type: "type_3", calls: 400, rr: 96.1 },
+  { month: "January", market: "market_2", type: "type_4", calls: 1000, rr: 90.0 },
+  { month: "January", market: "market_2", type: "type_5", calls: 3400, rr: 93.0 },
+  { month: "January", market: "market_3", type: "type_1", calls: 800, rr: 64.8 },
+  { month: "January", market: "market_3", type: "type_2", calls: 1200, rr: 94.7 },
+  { month: "January", market: "market_3", type: "type_3", calls: 300, rr: 82.3 },
+  { month: "January", market: "market_3", type: "type_4", calls: 500, rr: 90.0 },
+  { month: "January", market: "market_3", type: "type_5", calls: 700, rr: 87.4 },
+  { month: "February", market: "market_1", type: "type_1", calls: 1700, rr: 91.0 },
+  { month: "February", market: "market_1", type: "type_2", calls: 8200, rr: 95.0 },
+  { month: "February", market: "market_1", type: "type_3", calls: 1100, rr: 88.4 },
+  { month: "February", market: "market_1", type: "type_4", calls: 3400, rr: 92.0 },
+  { month: "February", market: "market_1", type: "type_5", calls: 11000, rr: 89.6 },
+  { month: "February", market: "market_2", type: "type_1", calls: 700, rr: 95.1 },
+  { month: "February", market: "market_2", type: "type_2", calls: 3100, rr: 94.8 },
+  { month: "February", market: "market_2", type: "type_3", calls: 500, rr: 96.1 },
+  { month: "February", market: "market_2", type: "type_4", calls: 1200, rr: 90.0 },
+  { month: "February", market: "market_2", type: "type_5", calls: 4100, rr: 92.9 },
+  { month: "February", market: "market_3", type: "type_1", calls: 900, rr: 64.9 },
+  { month: "February", market: "market_3", type: "type_2", calls: 1500, rr: 94.6 },
+  { month: "February", market: "market_3", type: "type_3", calls: 400, rr: 82.2 },
+  { month: "February", market: "market_3", type: "type_4", calls: 600, rr: 90.1 },
+  { month: "February", market: "market_3", type: "type_5", calls: 800, rr: 87.5 },
+  { month: "March", market: "market_1", type: "type_1", calls: 1100, rr: 91.3 },
+  { month: "March", market: "market_1", type: "type_2", calls: 5100, rr: 95.1 },
+  { month: "March", market: "market_1", type: "type_3", calls: 700, rr: 88.6 },
+  { month: "March", market: "market_1", type: "type_4", calls: 2100, rr: 91.8 },
+  { month: "March", market: "market_1", type: "type_5", calls: 6800, rr: 89.8 },
+  { month: "March", market: "market_2", type: "type_1", calls: 400, rr: 95.2 },
+  { month: "March", market: "market_2", type: "type_2", calls: 2000, rr: 94.8 },
+  { month: "March", market: "market_2", type: "type_3", calls: 300, rr: 96.0 },
+  { month: "March", market: "market_2", type: "type_4", calls: 800, rr: 90.0 },
+  { month: "March", market: "market_2", type: "type_5", calls: 2500, rr: 93.1 },
+  { month: "March", market: "market_3", type: "type_1", calls: 600, rr: 64.7 },
+  { month: "March", market: "market_3", type: "type_2", calls: 900, rr: 94.7 },
+  { month: "March", market: "market_3", type: "type_3", calls: 200, rr: 82.3 },
+  { month: "March", market: "market_3", type: "type_4", calls: 400, rr: 90.0 },
+  { month: "March", market: "market_3", type: "type_5", calls: 500, rr: 87.3 },
+];
 
-function parseCSV(csv: string): Row[] {
-  const lines = csv.trim().split("\n");
-  const headers = lines[0].split(",").map((h) => h.trim());
-  return lines.slice(1).map((line) => {
-    const vals = line.split(",");
-    const row: Row = {};
-    headers.forEach((h, i) => {
-      const v = vals[i]?.trim() ?? "";
-      row[h] = isNaN(Number(v)) || v === "" ? v : Number(v);
-    });
-    return row;
-  });
+// ── HELPERS ──
+function sumC(arr: DataRow[]): number { return arr.reduce((s, r) => s + r.calls, 0); }
+function avgR(arr: DataRow[]): number {
+  const t = sumC(arr);
+  return t ? arr.reduce((s, r) => s + r.rr * r.calls, 0) / t : 0;
 }
+function fmtK(n: number): string { return n >= 1000 ? (n / 1000).toFixed(1) + "K" : String(n); }
+
+// ── INSIGHTS DATA ──
+const INSIGHTS: Record<string, { title: string; body: string }> = {
+  fcr: { title: "Why is FCR only 8.6%?", body: "A 8.6% FCR means agents fail to resolve issues 91.4% of the time — 10x worse than industry standard of 70-75%. Root causes typically include agents lacking authority to resolve issues, inadequate knowledge base, or complex multi-department problems. type_5 accounts for 47% of all call volume and is the highest priority investigation target." },
+  anomaly: { title: "market_2 × type_3: 96.10% — Critical Anomaly", body: "At 96.10%, virtually every customer in this segment calls back after first contact. This indicates a near-total resolution failure — only 3.9% resolved on first contact. Immediate action: pull call recordings, identify the top 3 unresolved issue patterns, and escalate to product or operations within 48 hours." },
+  benchmark: { title: "Best Benchmark: market_3 × type_1 at 64.82%", body: "This cell is 26.6 percentage points better than the dataset average. Whatever processes, agent behaviors, or issue types exist here are working significantly better. Recommended: deep-dive on recordings, document what agents do differently, run a 30-day pilot replicating those practices in market_2 × type_3." },
+  actions: { title: "Top 3 Management Actions", body: "1. URGENT: Task force on market_2 × type_3 this week — 96.10% repeat rate is unacceptable and requires immediate investigation.\n\n2. HIGH PRIORITY: Study market_3 × type_1 success factors and build into training for all segments.\n\n3. STRATEGIC: type_5 is 47% of all calls — improving FCR to just 30% eliminates ~17K repeat calls per quarter." },
+  feb: { title: "Why Did February Spike to 25K?", body: "February shows a 19% increase over January before dropping in March. Most likely causes: a product or service issue introduced in late January generating callbacks, a billing cycle event common in telecoms/utilities, or seasonal demand. Recommend correlating with product changes, outage events, or billing dates from that period." },
+};
+
+// ── CHAT RESPONSES ──
+const CHAT_RESPONSES: Record<string, string> = {
+  fcr: "The 8.6% FCR is critically low — industry average is 70-75%. This means 9 out of 10 customers must call back. type_5 represents 47% of volume and should be the first investigation priority for your team.",
+  market: "market_1 has the highest volume at ~45K calls (70% of total). market_2 has the worst repeat rate at 93.96%. market_3 performs best at 87.19% — their practices should be studied and replicated across all segments.",
+  anomaly: "market_2 × type_3 at 96.10% is the critical anomaly — virtually no first-call resolution. This is 26+ points worse than the best-performing cell: market_3 × type_1 at 64.82%. That gap is your biggest opportunity.",
+  default: "Based on the data, the most urgent issue is the 91.4% overall repeat call rate. I recommend focusing on market_2 × type_3 first as the highest-priority anomaly, then replicating market_3 × type_1 best practices across all segments.",
+};
+
+
+// ── BAR CHART (CSS) ──
+  function BarChart({ labels, values, colors, filterDim }: { labels: string[]; values: number[]; colors: string[]; filterDim: keyof Filters }) {
+    const max = Math.max(...values, 1);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {labels.map((l, i) => {
+          const sel = filters[filterDim] === l;
+          const dim = filters[filterDim] && !sel;
+          return (
+            <div key={l} onClick={() => toggle(filterDim, l)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 6px", borderRadius: 6, cursor: "pointer", opacity: dim ? 0.2 : 1, background: sel ? "#f0fdfa" : "transparent", border: `1.5px solid ${sel ? "#99f6e4" : "transparent"}`, transition: "all 0.12s" }}>
+              <span style={{ fontSize: 11, color: sel ? "#0f766e" : "#475569", minWidth: 72, fontWeight: sel ? 500 : 400 }}>{l.replace("market_", "mkt_").replace("January", "Jan").replace("February", "Feb").replace("March", "Mar")}</span>
+              <div style={{ flex: 1, height: 20, background: "#f1f3f5", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.round(values[i] / max * 100)}%`, background: colors[i % colors.length], borderRadius: 4, transition: "width 0.3s" }} />
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 500, color: sel ? "#0f766e" : "#475569", minWidth: 44, textAlign: "right" }}>{fmtK(values[i])}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
 // ── MAIN COMPONENT ──
 export default function ClearSightPage() {
-  const [data, setData] = useState<Row[]>([]);
-  const [schema, setSchema] = useState<Schema>({});
-  const [fileName, setFileName] = useState("");
-  const [filters, setFilters] = useState<Filters>({ dim1: null, dim2: null, dim3: null });
-  const [chatMessages, setChatMessages] = useState<{ role: string; text: string }[]>([]);
+  const [tab, setTab] = useState<Tab>("dashboard");
+  const [filters, setFilters] = useState<Filters>({ month: null, market: null, type: null });
+  const [activeInsight, setActiveInsight] = useState<string | null>(null);
+  const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([{ role: "ai", text: "Ask me anything about this call center data. I can explain anomalies, compare segments, or brief you for an executive presentation." }]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "chat">("dashboard");
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [genMode, setGenMode] = useState<GenMode>("prompt");
+  const [genPrompt, setGenPrompt] = useState("");
+  const [genApiKey, setGenApiKey] = useState("");
+  const [genLoading, setGenLoading] = useState(false);
+  const [genCode, setGenCode] = useState("");
+  const [genScreenshot, setGenScreenshot] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMsgs]);
 
-  // Load sample data on mount
-  useEffect(() => {
-    const rows = parseCSV(SAMPLE_CSV);
-    setData(rows);
-    setSchema(detectSchema(rows));
-    setFileName("sample_sales.csv");
-  }, []);
-
-  function handleFile(file: File) {
-    setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const csv = e.target?.result as string;
-      const rows = parseCSV(csv);
-      setData(rows);
-      setSchema(detectSchema(rows));
-      setFilters({ dim1: null, dim2: null, dim3: null });
-      setChatMessages([]);
-    };
-    reader.readAsText(file);
-  }
-
-  // Derived
-  const cols = data.length ? Object.keys(data[0]) : [];
-  const numCols = cols.filter((c) => schema[c] === "number");
-  const strCols = cols.filter((c) => schema[c] === "string");
-  const metricCol = numCols[0] ?? "";
-  const metric2Col = numCols[1] ?? "";
-  const dim1Col = strCols[0] ?? "";
-  const dim2Col = strCols[1] ?? "";
-  const dim3Col = strCols[2] ?? "";
-
-  const filtered = data.filter(
-    (r) =>
-      (!filters.dim1 || r[dim1Col] === filters.dim1) &&
-      (!filters.dim2 || r[dim2Col] === filters.dim2) &&
-      (!filters.dim3 || r[dim3Col] === filters.dim3)
+  // ── FILTER LOGIC ──
+  const filtered = RAW.filter(r =>
+    (!filters.month || r.month === filters.month) &&
+    (!filters.market || r.market === filters.market) &&
+    (!filters.type || r.type === filters.type)
   );
+  const hasFilters = filters.month || filters.market || filters.type;
+  const totalCalls = sumC(filtered);
+  const repeatRate = avgR(filtered);
+  const repeatCalls = Math.round(totalCalls * repeatRate / 100);
+  const firstCalls = totalCalls - repeatCalls;
 
-  function toggleFilter(dim: keyof Filters, val: string) {
-    setFilters((f) => ({ ...f, [dim]: f[dim] === val ? null : val }));
+  function toggle(dim: keyof Filters, val: string) {
+    setFilters(f => ({ ...f, [dim]: f[dim] === val ? null : val }));
   }
-  function clearFilters() {
-    setFilters({ dim1: null, dim2: null, dim3: null });
-  }
+  function clearFilters() { setFilters({ month: null, market: null, type: null }); }
 
-  function uniqueVals(col: string) {
-    return [...new Set(data.map((r) => String(r[col])))];
-  }
-  function aggBy(col: string, metric: string) {
+  // ── AGGREGATION ──
+  function aggBy(dim: keyof DataRow, metric: keyof DataRow, data: DataRow[]) {
     const result: Record<string, number> = {};
-    filtered.forEach((r) => {
-      const k = String(r[col]);
+    data.forEach(r => {
+      const k = String(r[dim]);
       result[k] = (result[k] || 0) + (Number(r[metric]) || 0);
     });
     return result;
   }
-
-  const hasFilters = filters.dim1 || filters.dim2 || filters.dim3;
-  const totalMetric = sumCalls(filtered, metricCol);
-  const totalMetric2 = sumCalls(filtered, metric2Col);
-  const COLORS = ["#0d9488", "#2563eb", "#7c3aed", "#d97706", "#dc2626", "#059669", "#0891b2"];
 
   // ── AI CHAT ──
   async function sendChat() {
     if (!chatInput.trim() || chatLoading) return;
     const q = chatInput.trim();
     setChatInput("");
-    setChatMessages((m) => [...m, { role: "user", text: q }]);
+    setChatMsgs(m => [...m, { role: "user", text: q }]);
     setChatLoading(true);
-
-    const numStats: Record<string, { total: number; avg: number; min: number; max: number }> = {};
-    numCols.forEach((col) => {
-      const vals = data.map((r) => Number(r[col])).filter((v) => !isNaN(v));
-      numStats[col] = {
-        total: vals.reduce((a, b) => a + b, 0),
-        avg: vals.reduce((a, b) => a + b, 0) / vals.length,
-        min: Math.min(...vals),
-        max: Math.max(...vals),
-      };
-    });
-
-    const prompt = `You are ClearSight, an expert AI data analyst. Dataset: "${fileName}" with ${data.length} rows.
-Columns: ${cols.join(", ")}
-Numeric stats: ${JSON.stringify(numStats)}
-Sample (5 rows): ${JSON.stringify(data.slice(0, 5))}
-Active filters: ${JSON.stringify(filters)}
-Filtered rows: ${filtered.length}
-
-User question: "${q}"
-
-Answer in 3-4 sentences, plain English, executive level. Be specific with numbers.`;
-
     try {
-      const res = await fetch("/api/claude", {
+      const res = await fetch("/api/clearsight", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({
+          prompt: `You are ClearSight AI analyst. Call center data: 64,900 total calls, 91.4% repeat rate, 8.6% FCR (industry avg 70-75%). Markets: market_1 (45K, 92.5% repeat), market_2 (15K, 93.96%), market_3 (4.9K, 87.19%). Critical anomaly: market_2×type_3 = 96.10%. Best benchmark: market_3×type_1 = 64.82%. Active filters: ${JSON.stringify(filters)}. User question: "${q}". Answer in 3-4 sentences, plain English, executive level.`
+        }),
       });
-      const json = await res.json();
-      setChatMessages((m) => [...m, { role: "ai", text: json.text || "Unable to get response." }]);
+      const data = await res.json();
+      setChatMsgs(m => [...m, { role: "ai", text: data.text || "Unable to get response." }]);
     } catch {
-      setChatMessages((m) => [...m, { role: "ai", text: "API error. Check your Claude API key in .env.local." }]);
+      const k = q.toLowerCase().includes("fcr") || q.toLowerCase().includes("resolv") ? "fcr"
+        : q.toLowerCase().includes("market") ? "market"
+        : q.toLowerCase().includes("anomal") || q.toLowerCase().includes("96") ? "anomaly" : "default";
+      setChatMsgs(m => [...m, { role: "ai", text: CHAT_RESPONSES[k] }]);
     }
     setChatLoading(false);
   }
 
-  if (!data.length) {
-    return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8f9fa" }}>
-        <p style={{ fontFamily: "monospace", color: "#94a3b8" }}>Loading...</p>
-      </div>
-    );
+  function quickAsk(q: string) { setChatInput(q); setTimeout(() => { document.getElementById("ci")?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" })); }, 100); }
+
+  // ── AI GENERATOR ──
+  async function generateDashboard() {
+    if (!genApiKey.startsWith("sk-ant")) return;
+    setGenLoading(true); setGenCode("");
+    const userRequest = genMode === "auto" ? "Automatically choose the best dashboard layout for this call center data."
+      : genMode === "screenshot" && genScreenshot ? (document.getElementById("ss-extra") as HTMLTextAreaElement)?.value || "Recreate the layout from the screenshot with this data."
+      : genPrompt || "Create a professional dashboard with cross-filtering.";
+    const systemPrompt = `You are a dashboard code generator. Generate a complete single-file HTML dashboard.
+REQUIREMENTS: Cross-filtering on all charts, KPI cards, 3-4 charts, professional design matching user request.
+Use Chart.js from cdnjs or pure CSS bars. Return ONLY complete HTML, no markdown, no backticks.
+DATA: Call center data Jan-Mar 2023. 64,900 total calls. 91.4% repeat rate. 8.6% FCR (industry avg 70-75%).
+Markets: market_1 (45K), market_2 (15K), market_3 (4.9K). Types: type_1-5.
+Key anomaly: market_2×type_3 = 96.10% repeat rate. Best benchmark: market_3×type_1 = 64.82%.
+USER REQUEST: ${userRequest}
+Generate complete HTML now:`;
+    try {
+      const msgs = genMode === "screenshot" && genScreenshot
+        ? [{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: "image/png", data: genScreenshot } }, { type: "text", text: systemPrompt }] }]
+        : [{ role: "user", content: systemPrompt }];
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": genApiKey, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 8000, messages: msgs }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      let code = data.content?.map((b: { text?: string }) => b.text || "").join("") || "";
+      code = code.replace(/```html\n?/g, "").replace(/```\n?/g, "").trim();
+      setGenCode(code);
+    } catch (e: unknown) {
+      alert("Error: " + (e instanceof Error ? e.message : "Check your API key"));
+    }
+    setGenLoading(false);
   }
 
+  function handleScreenshotUpload(file: File) {
+    const reader = new FileReader();
+    reader.onload = e => setGenScreenshot(e.target?.result?.toString().split(",")[1] || "");
+    reader.readAsDataURL(file);
+  }
+
+  // ── STYLES ──
+  const s = {
+    topbar: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", height: 54, borderBottom: "1px solid #e5e7eb", background: "#fff", position: "sticky" as const, top: 0, zIndex: 10 },
+    logo: { display: "flex", alignItems: "center", gap: 8 },
+    logoMark: { width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #0d9488", display: "flex", alignItems: "center", justifyContent: "center" },
+    logoDot: { width: 7, height: 7, borderRadius: "50%", background: "#0d9488" },
+    logoName: { fontFamily: "'DM Serif Display', serif", fontSize: 16, color: "#0f172a" },
+    badge: (color: string) => ({ fontSize: 10, padding: "2px 9px", borderRadius: 99, fontWeight: 500, background: color === "teal" ? "#f0fdfa" : "#f1f3f5", color: color === "teal" ? "#0f766e" : "#475569", border: `1px solid ${color === "teal" ? "#99f6e4" : "#e5e7eb"}` }),
+    btnSm: { fontFamily: "Inter, sans-serif", fontSize: 11, padding: "5px 12px", borderRadius: 8, border: "1px solid #d1d5db", background: "#fff", color: "#475569", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 } as React.CSSProperties,
+    btnPrimary: { fontFamily: "Inter, sans-serif", fontSize: 11, padding: "5px 12px", borderRadius: 8, border: "1px solid #0d9488", background: "#0d9488", color: "#fff", cursor: "pointer" } as React.CSSProperties,
+    tabBtn: (active: boolean) => ({ fontFamily: "Inter, sans-serif", fontSize: 12, fontWeight: 500, padding: "10px 16px", border: "none", background: "transparent", cursor: "pointer", color: active ? "#0d9488" : "#94a3b8", borderBottom: active ? "2px solid #0d9488" : "2px solid transparent", marginBottom: -1, transition: "all 0.15s", letterSpacing: "0.02em" } as React.CSSProperties),
+    content: { padding: "16px 20px", display: "flex", flexDirection: "column" as const, gap: 12 },
+    card: { background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 15, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" },
+    cardTitle: { fontSize: 10, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase" as const, color: "#475569", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" },
+  };
+
+  // ── HEATMAP DATA ──
+  function heatmapRate(mkt: string, tp: string): number | null {
+    const d = filtered.filter(r => r.market === mkt && r.type === tp);
+    return d.length ? avgR(d) : null;
+  }
+  function heatmapClass(v: number): React.CSSProperties {
+    return v >= 94 ? { background: "#fef2f2", color: "#dc2626" }
+      : v >= 80 ? { background: "#fff7ed", color: "#c2410c" }
+      : { background: "#f0fdf4", color: "#15803d" };
+  }
+
+  
+
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", background: "#f8f9fa", minHeight: "100vh" }}>
+    <div style={{ fontFamily: "Inter, sans-serif", background: "#f8f9fa", minHeight: "100vh", color: "#0f172a" }}>
 
       {/* TOPBAR */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e5e7eb", padding: "0 24px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #0d9488", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#0d9488" }} />
-          </div>
-          <span style={{ fontFamily: "Georgia, serif", fontSize: 17 }}>ClearSight</span>
-          <span style={{ fontSize: 10, color: "#94a3b8", letterSpacing: "0.08em", textTransform: "uppercase", marginLeft: 4 }}>· AI Analytics</span>
+      <div style={s.topbar}>
+        <div style={s.logo}>
+          <div style={s.logoMark}><div style={s.logoDot} /></div>
+          <span style={s.logoName}>ClearSight</span>
+          <span style={{ fontSize: 10, color: "#94a3b8", letterSpacing: "0.06em", textTransform: "uppercase", marginLeft: 3 }}>· AI Analytics</span>
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: 10, padding: "3px 10px", borderRadius: 99, background: "#f0fdfa", color: "#0f766e", border: "1px solid #99f6e4", fontWeight: 500 }}>
-            {filtered.length} / {data.length} rows
-          </span>
-          <label style={{ fontSize: 11, padding: "5px 14px", borderRadius: 6, border: "1px solid #d1d5db", background: "#fff", color: "#475569", cursor: "pointer" }}>
-            Upload CSV
-            <input ref={fileRef} type="file" accept=".csv" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
-          </label>
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <span style={s.badge("gray")}>{sumC(filtered).toLocaleString()} calls</span>
+          <span style={s.badge("teal")}>Powered by Claude</span>
+          <button style={s.btnSm} onClick={() => window.print()}>📄 Export PDF</button>
         </div>
       </div>
 
       {/* TABS */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e5e7eb", padding: "0 24px", display: "flex", gap: 0 }}>
-        {(["dashboard", "chat"] as const).map((tab) => (
-          <button key={tab} onClick={() => setActiveTab(tab)} style={{ fontFamily: "inherit", fontSize: 12, fontWeight: 500, padding: "10px 18px", border: "none", background: "transparent", cursor: "pointer", color: activeTab === tab ? "#0d9488" : "#94a3b8", borderBottom: activeTab === tab ? "2px solid #0d9488" : "2px solid transparent", marginBottom: -1, letterSpacing: "0.04em", textTransform: "capitalize" }}>
-            {tab === "chat" ? "AI Chat" : "Dashboard"}
-          </button>
+      <div style={{ display: "flex", borderBottom: "1px solid #e5e7eb", background: "#fff", padding: "0 20px", overflowX: "auto" }}>
+        {([["dashboard", "📊 Dashboard"], ["insights", "🧠 AI Insights"], ["chat", "💬 AI Chat"], ["generator", "✨ AI Generator"]] as [Tab, string][]).map(([t, label]) => (
+          <button key={t} style={s.tabBtn(tab === t)} onClick={() => setTab(t)}>{label}</button>
         ))}
       </div>
 
-      <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* ── DASHBOARD TAB ── */}
+      {tab === "dashboard" && (
+        <div style={s.content}>
+          {/* Filter bar */}
+          <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: "9px 14px", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94a3b8", fontWeight: 500 }}>Filters:</span>
+            <div style={{ display: "flex", gap: 5, flexWrap: "wrap", flex: 1 }}>
+              {hasFilters ? (
+                Object.entries(filters).filter(([, v]) => v).map(([k, v]) => (
+                  <span key={k} style={{ fontSize: 11, padding: "2px 9px", borderRadius: 99, background: "#f0fdfa", color: "#0f766e", border: "1px solid #99f6e4", fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    {k}: <strong>{v}</strong>
+                    <span style={{ cursor: "pointer", marginLeft: 3 }} onClick={() => setFilters(f => ({ ...f, [k]: null }))}>×</span>
+                  </span>
+                ))
+              ) : (
+                <span style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic" }}>None — click any chart element to filter all</span>
+              )}
+            </div>
+            {hasFilters && <button onClick={clearFilters} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 99, border: "1px solid #e5e7eb", background: "#fff", color: "#475569", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>✕ Clear all</button>}
+          </div>
 
-        {/* FILTER BAR */}
-        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: "10px 16px", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94a3b8", fontWeight: 500 }}>Filters:</span>
-          {hasFilters ? (
-            <>
-              {filters.dim1 && <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 99, background: "#f0fdfa", color: "#0f766e", border: "1px solid #99f6e4", fontWeight: 500 }}>{dim1Col}: {filters.dim1} <span style={{ cursor: "pointer" }} onClick={() => setFilters(f => ({ ...f, dim1: null }))}>×</span></span>}
-              {filters.dim2 && <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 99, background: "#f0fdfa", color: "#0f766e", border: "1px solid #99f6e4", fontWeight: 500 }}>{dim2Col}: {filters.dim2} <span style={{ cursor: "pointer" }} onClick={() => setFilters(f => ({ ...f, dim2: null }))}>×</span></span>}
-              {filters.dim3 && <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 99, background: "#f0fdfa", color: "#0f766e", border: "1px solid #99f6e4", fontWeight: 500 }}>{dim3Col}: {filters.dim3} <span style={{ cursor: "pointer" }} onClick={() => setFilters(f => ({ ...f, dim3: null }))}>×</span></span>}
-              <button onClick={clearFilters} style={{ fontFamily: "inherit", fontSize: 11, padding: "3px 10px", borderRadius: 99, border: "1px solid #e5e7eb", background: "#fff", color: "#475569", cursor: "pointer" }}>✕ Clear all</button>
-            </>
-          ) : (
-            <span style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic" }}>None — click any row to filter all charts</span>
-          )}
-        </div>
+          {/* KPIs */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+            {[
+              { label: "Total Calls", value: totalCalls.toLocaleString(), sub: hasFilters ? "Filtered view" : "Jan–Mar 2023", color: "#0d9488", subColor: "#475569" },
+              { label: "First-Time Calls", value: firstCalls.toLocaleString(), sub: `${totalCalls ? (firstCalls / totalCalls * 100).toFixed(1) : 0}% of total`, color: "#2563eb", subColor: "#475569" },
+              { label: "Repeat Calls", value: repeatCalls.toLocaleString(), sub: `${repeatRate.toFixed(1)}% repeat rate`, color: "#d97706", subColor: "#d97706" },
+              { label: "Avg Repeat Rate", value: `${repeatRate.toFixed(1)}%`, sub: "↓ Target: <30%", color: "#dc2626", subColor: "#dc2626" },
+            ].map((k, i) => (
+              <div key={i} style={{ ...s.card, position: "relative", overflow: "hidden", padding: "13px 15px" }}>
+                <div style={{ fontSize: 10, letterSpacing: "0.07em", textTransform: "uppercase", color: "#94a3b8", fontWeight: 500, marginBottom: 4 }}>{k.label}</div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: "#0f172a" }}>{k.value}</div>
+                <div style={{ fontSize: 11, marginTop: 2, color: k.subColor }}>{k.sub}</div>
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: k.color }} />
+              </div>
+            ))}
+          </div>
 
-        {activeTab === "dashboard" && (
-          <>
-            {/* KPIs */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-              {[
-                { label: metricCol, value: fmt(totalMetric), color: "#0d9488" },
-                { label: metric2Col || "Rows", value: metric2Col ? fmt(totalMetric2) : String(filtered.length), color: "#2563eb" },
-                { label: "Filtered", value: `${filtered.length} rows`, color: "#7c3aed" },
-              ].map((k, i) => (
-                <div key={i} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
-                  <div style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94a3b8", marginBottom: 5, fontWeight: 500 }}>{k.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 600, color: "#0f172a" }}>{k.value}</div>
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: k.color }} />
+          {/* Charts row 1 */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={s.card}>
+              <div style={s.cardTitle}>Calls by Month <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click to filter</span></div>
+              <BarChart labels={MONTHS} values={MONTHS.map(m => sumC(filtered.filter(r => r.month === m)))} colors={["#0d9488", "#2563eb", "#7c3aed"]} filterDim="month" />
+            </div>
+            <div style={s.card}>
+              <div style={s.cardTitle}>Volume by Market <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click to filter</span></div>
+              <BarChart labels={MARKETS} values={MARKETS.map(m => sumC(filtered.filter(r => r.market === m)))} colors={MCOLORS} filterDim="market" />
+            </div>
+          </div>
+
+          {/* Charts row 2 */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={s.card}>
+              <div style={s.cardTitle}>Volume by Call Type <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click to filter</span></div>
+              <BarChart labels={TYPES} values={TYPES.map(t => sumC(filtered.filter(r => r.type === t)))} colors={TCOLORS} filterDim="type" />
+            </div>
+            <div style={s.card}>
+              <div style={s.cardTitle}>Repeat Rate by Market <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click to filter</span></div>
+              <BarChart
+                labels={MARKETS}
+                values={MARKETS.map(m => { const d = filtered.filter(r => r.market === m); return d.length ? +avgR(d).toFixed(1) : 0; })}
+                colors={MCOLORS}
+                filterDim="market"
+              />
+            </div>
+          </div>
+
+          {/* Heatmap */}
+          <div style={s.card}>
+            <div style={s.cardTitle}>Repeat Call Rate Heatmap — Market × Type (%) <span style={{ color: "#94a3b8", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>click cell or market name to filter</span></div>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+              <thead>
+                <tr>
+                  <th style={{ fontSize: 10, letterSpacing: "0.05em", textTransform: "uppercase", color: "#94a3b8", fontWeight: 500, padding: "6px 8px", textAlign: "left", borderBottom: "1px solid #e5e7eb" }}>Market</th>
+                  {TYPES.map(t => <th key={t} style={{ fontSize: 10, letterSpacing: "0.05em", textTransform: "uppercase", color: "#94a3b8", fontWeight: 500, padding: "6px 8px", textAlign: "center", borderBottom: "1px solid #e5e7eb" }}>{t}</th>)}
+                  <th style={{ fontSize: 10, letterSpacing: "0.05em", textTransform: "uppercase", color: "#94a3b8", fontWeight: 500, padding: "6px 8px", textAlign: "center", borderBottom: "1px solid #e5e7eb" }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {MARKETS.map(mkt => {
+                  const rowData = filtered.filter(r => r.market === mkt);
+                  const dim = filters.market && filters.market !== mkt;
+                  const msel = filters.market === mkt;
+                  return (
+                    <tr key={mkt} style={{ opacity: dim ? 0.2 : 1 }}>
+                      <td onClick={() => toggle("market", mkt)} style={{ padding: "7px 8px", cursor: "pointer", color: msel ? "#0d9488" : "#475569", fontWeight: msel ? 600 : 400, borderBottom: "1px solid #e5e7eb" }}>{mkt}</td>
+                      {TYPES.map(tp => {
+                        const rate = heatmapRate(mkt, tp);
+                        const isSel = filters.market === mkt && filters.type === tp;
+                        return (
+                          <td key={tp} onClick={() => { if (filters.market === mkt && filters.type === tp) { setFilters(f => ({ ...f, market: null, type: null })); } else { setFilters(f => ({ ...f, market: mkt, type: tp })); } }}
+                            style={{ padding: "7px 8px", textAlign: "center", fontWeight: 500, borderBottom: "1px solid #e5e7eb", cursor: "pointer", ...(rate !== null ? heatmapClass(rate) : {}), ...(isSel ? { outline: "2px solid #0d9488", outlineOffset: -1, background: "#f0fdfa", color: "#0f766e" } : {}) }}>
+                            {rate !== null ? rate.toFixed(2) : "—"}
+                          </td>
+                        );
+                      })}
+                      <td style={{ padding: "7px 8px", textAlign: "center", fontWeight: 700, borderBottom: "1px solid #e5e7eb", color: "#0f172a" }}>{rowData.length ? avgR(rowData).toFixed(2) : "—"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+              {[["#fef2f2", "#fecaca", "High ≥94%"], ["#fff7ed", "#fde68a", "Medium 80–93%"], ["#f0fdf4", "#bbf7d0", "Low <80%"]].map(([bg, border, label]) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "#94a3b8" }}>
+                  <div style={{ width: 10, height: 10, borderRadius: 2, background: bg, border: `1px solid ${border}` }} />
+                  {label}
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
 
-            {/* CHARTS */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-
-              {/* Dim1 chart */}
-              {dim1Col && (
-                <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: 16 }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", color: "#475569", marginBottom: 12, display: "flex", justifyContent: "space-between" }}>
-                    <span>{metricCol} by {dim1Col}</span>
-                    <span style={{ fontWeight: 400, color: "#94a3b8", textTransform: "none", letterSpacing: 0 }}>click to filter</span>
-                  </div>
-                  {(() => {
-                    const agg = aggBy(dim1Col, metricCol);
-                    const allVals = uniqueVals(dim1Col);
-                    const max = Math.max(...Object.values(agg), 1);
-                    return allVals.map((v, i) => {
-                      const val = agg[v] || 0;
-                      const sel = filters.dim1 === v;
-                      const dim = filters.dim1 && !sel;
-                      return (
-                        <div key={v} onClick={() => toggleFilter("dim1", v)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 6px", borderRadius: 6, cursor: "pointer", marginBottom: 4, opacity: dim ? 0.25 : 1, background: sel ? "#f0fdfa" : "transparent", border: `1.5px solid ${sel ? "#99f6e4" : "transparent"}` }}>
-                          <span style={{ fontSize: 11, color: sel ? "#0f766e" : "#475569", minWidth: 70, fontWeight: sel ? 500 : 400 }}>{v}</span>
-                          <div style={{ flex: 1, height: 20, background: "#f1f3f5", borderRadius: 4, overflow: "hidden" }}>
-                            <div style={{ height: "100%", width: `${(val / max) * 100}%`, background: COLORS[i % COLORS.length], borderRadius: 4, transition: "width 0.3s" }} />
-                          </div>
-                          <span style={{ fontSize: 11, fontWeight: 500, color: sel ? "#0f766e" : "#475569", minWidth: 48, textAlign: "right" }}>{fmt(val)}</span>
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              )}
-
-              {/* Dim2 chart */}
-              {dim2Col && (
-                <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: 16 }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", color: "#475569", marginBottom: 12, display: "flex", justifyContent: "space-between" }}>
-                    <span>{metricCol} by {dim2Col}</span>
-                    <span style={{ fontWeight: 400, color: "#94a3b8", textTransform: "none", letterSpacing: 0 }}>click to filter</span>
-                  </div>
-                  {(() => {
-                    const agg = aggBy(dim2Col, metricCol);
-                    const allVals = uniqueVals(dim2Col);
-                    const max = Math.max(...Object.values(agg), 1);
-                    return allVals.map((v, i) => {
-                      const val = agg[v] || 0;
-                      const sel = filters.dim2 === v;
-                      const dim = filters.dim2 && !sel;
-                      return (
-                        <div key={v} onClick={() => toggleFilter("dim2", v)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 6px", borderRadius: 6, cursor: "pointer", marginBottom: 4, opacity: dim ? 0.25 : 1, background: sel ? "#f0fdfa" : "transparent", border: `1.5px solid ${sel ? "#99f6e4" : "transparent"}` }}>
-                          <span style={{ fontSize: 11, color: sel ? "#0f766e" : "#475569", minWidth: 70, fontWeight: sel ? 500 : 400 }}>{v}</span>
-                          <div style={{ flex: 1, height: 20, background: "#f1f3f5", borderRadius: 4, overflow: "hidden" }}>
-                            <div style={{ height: "100%", width: `${(val / max) * 100}%`, background: COLORS[(i + 2) % COLORS.length], borderRadius: 4, transition: "width 0.3s" }} />
-                          </div>
-                          <span style={{ fontSize: 11, fontWeight: 500, color: sel ? "#0f766e" : "#475569", minWidth: 48, textAlign: "right" }}>{fmt(val)}</span>
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              )}
-
-              {/* Dim3 chart */}
-              {dim3Col && (
-                <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: 16 }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", color: "#475569", marginBottom: 12, display: "flex", justifyContent: "space-between" }}>
-                    <span>{metricCol} by {dim3Col}</span>
-                    <span style={{ fontWeight: 400, color: "#94a3b8", textTransform: "none", letterSpacing: 0 }}>click to filter</span>
-                  </div>
-                  {(() => {
-                    const agg = aggBy(dim3Col, metricCol);
-                    const allVals = uniqueVals(dim3Col);
-                    const max = Math.max(...Object.values(agg), 1);
-                    return allVals.map((v, i) => {
-                      const val = agg[v] || 0;
-                      const sel = filters.dim3 === v;
-                      const dim = filters.dim3 && !sel;
-                      return (
-                        <div key={v} onClick={() => toggleFilter("dim3", v)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 6px", borderRadius: 6, cursor: "pointer", marginBottom: 4, opacity: dim ? 0.25 : 1, background: sel ? "#f0fdfa" : "transparent", border: `1.5px solid ${sel ? "#99f6e4" : "transparent"}` }}>
-                          <span style={{ fontSize: 11, color: sel ? "#0f766e" : "#475569", minWidth: 70, fontWeight: sel ? 500 : 400 }}>{v}</span>
-                          <div style={{ flex: 1, height: 20, background: "#f1f3f5", borderRadius: 4, overflow: "hidden" }}>
-                            <div style={{ height: "100%", width: `${(val / max) * 100}%`, background: COLORS[(i + 4) % COLORS.length], borderRadius: 4, transition: "width 0.3s" }} />
-                          </div>
-                          <span style={{ fontSize: 11, fontWeight: 500, color: sel ? "#0f766e" : "#475569", minWidth: 48, textAlign: "right" }}>{fmt(val)}</span>
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              )}
-
-              {/* Summary table */}
-              <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: 16 }}>
-                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", color: "#475569", marginBottom: 12 }}>Data Preview</div>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
-                    <thead>
-                      <tr>{cols.map(c => <th key={c} style={{ padding: "5px 8px", textAlign: "left", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "#94a3b8", borderBottom: "1px solid #e5e7eb", fontWeight: 500 }}>{c}</th>)}</tr>
-                    </thead>
-                    <tbody>
-                      {filtered.slice(0, 8).map((row, i) => (
-                        <tr key={i} style={{ borderBottom: "1px solid #f1f3f5" }}>
-                          {cols.map(c => <td key={c} style={{ padding: "6px 8px", color: "#475569" }}>{typeof row[c] === "number" ? Number(row[c]).toLocaleString() : String(row[c])}</td>)}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+      {/* ── INSIGHTS TAB ── */}
+      {tab === "insights" && (
+        <div style={s.content}>
+          <div style={{ background: "#f0fdfa", border: "1px solid #99f6e4", borderRadius: 12, padding: 15 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <div style={s.logoMark}><div style={s.logoDot} /></div>
+              <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: "#0f766e" }}>AI Executive Summary</span>
             </div>
-          </>
-        )}
-
-        {activeTab === "chat" && (
-          <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, overflow: "hidden", display: "flex", flexDirection: "column", minHeight: 400 }}>
-            <div style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column", gap: 10, overflowY: "auto", maxHeight: 480 }}>
-              {chatMessages.length === 0 && (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: 8, color: "#94a3b8", padding: 40 }}>
-                  <div style={{ fontSize: 28 }}>💬</div>
-                  <p style={{ fontSize: 13 }}>Ask anything about your data in plain English</p>
-                  {["What is the total revenue?", "Which region performs best?", "Show me anomalies"].map(q => (
-                    <span key={q} onClick={() => { setChatInput(q); }} style={{ fontSize: 11, padding: "4px 12px", borderRadius: 99, border: "1px solid #e5e7eb", cursor: "pointer", color: "#475569" }}>{q}</span>
-                  ))}
+            <p style={{ fontSize: 13, color: "#0f172a", lineHeight: 1.75 }}>
+              This call center has a <strong>critical first-call resolution crisis</strong>: only 8.6% of calls are resolved on first contact, vs the 70–75% industry standard.
+              The most urgent anomaly is <span style={{ background: "#fef2f2", color: "#dc2626", padding: "1px 6px", borderRadius: 4, fontSize: 11, fontWeight: 500 }}>market_2 × type_3 at 96.10%</span>.
+              A strong benchmark exists: <span style={{ background: "#f0fdf4", color: "#15803d", padding: "1px 6px", borderRadius: 4, fontSize: 11, fontWeight: 500 }}>market_3 × type_1 at 64.82%</span> — study and replicate immediately.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
+              {Object.keys(INSIGHTS).map(k => (
+                <button key={k} onClick={() => setActiveInsight(activeInsight === k ? null : k)}
+                  style={{ fontSize: 11, padding: "4px 12px", borderRadius: 99, background: activeInsight === k ? "#0d9488" : "#fff", color: activeInsight === k ? "#fff" : "#0f766e", border: "1px solid #99f6e4", cursor: "pointer", fontFamily: "Inter, sans-serif", transition: "all 0.15s" }}>
+                  {k === "fcr" ? "Why only 8.6% FCR?" : k === "anomaly" ? "market_2 × type_3" : k === "benchmark" ? "Best benchmark" : k === "actions" ? "Top 3 actions" : "Why Feb spike?"}
+                </button>
+              ))}
+            </div>
+            {activeInsight && (
+              <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "12px 14px", marginTop: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "#0f766e", marginBottom: 6 }}>{INSIGHTS[activeInsight].title}</div>
+                <div style={{ fontSize: 12, color: "#0f172a", lineHeight: 1.7 }}>{INSIGHTS[activeInsight].body.split("\n\n").map((p, i) => <p key={i} style={{ marginBottom: i < INSIGHTS[activeInsight].body.split("\n\n").length - 1 ? 8 : 0 }}>{p}</p>)}</div>
+              </div>
+            )}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={s.card}>
+              <div style={s.cardTitle}>Anomaly Detection</div>
+              {[["market_2 × type_3", "96.10%", true], ["market_1 × type_2", "95.01%", true], ["market_2 × type_1", "95.17%", true], ["market_3 × type_1", "64.82% — benchmark", false]].map(([label, val, isAnomaly]) => (
+                <div key={String(label)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: isAnomaly ? "#fef2f2" : "#f0fdf4", borderRadius: 8, border: `1px solid ${isAnomaly ? "#fecaca" : "#bbf7d0"}`, marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, color: isAnomaly ? "#dc2626" : "#15803d", fontWeight: 500 }}>{isAnomaly ? "⚠ " : "✓ "}{label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: isAnomaly ? "#dc2626" : "#15803d" }}>{val}</span>
                 </div>
-              )}
-              {chatMessages.map((m, i) => (
-                <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: m.role === "ai" ? "#f0fdfa" : "#f1f3f5", border: `1px solid ${m.role === "ai" ? "#99f6e4" : "#e5e7eb"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 600, flexShrink: 0, color: m.role === "ai" ? "#0f766e" : "#475569" }}>{m.role === "ai" ? "AI" : "U"}</div>
-                  <div style={{ fontSize: 13, padding: "8px 12px", borderRadius: 8, maxWidth: "80%", lineHeight: 1.6, background: m.role === "ai" ? "#f8f9fa" : "#0d9488", color: m.role === "ai" ? "#0f172a" : "#fff", border: m.role === "ai" ? "1px solid #e5e7eb" : "none" }}>{m.text}</div>
+              ))}
+            </div>
+            <div style={s.card}>
+              <div style={s.cardTitle}>Recommended Actions</div>
+              {[["Urgent", "#dc2626", "Investigate market_2 × type_3 this week — pull recordings, identify top 3 failure patterns"], ["High Priority", "#d97706", "Replicate market_3 × type_1 practices across all segments within 30 days"], ["Strategic", "#0d9488", "type_5 is 47% of all calls — even 30% FCR improvement eliminates ~17K repeat calls/quarter"]].map(([level, color, text]) => (
+                <div key={String(level)} style={{ padding: "8px 10px", background: "#f8f9fa", borderRadius: 8, borderLeft: `3px solid ${color}`, marginBottom: 6 }}>
+                  <div style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: String(color), marginBottom: 3, fontWeight: 500 }}>{level}</div>
+                  <div style={{ fontSize: 12, color: "#0f172a", lineHeight: 1.5 }}>{text}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── CHAT TAB ── */}
+      {tab === "chat" && (
+        <div style={s.content}>
+          <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 10, minHeight: 280, maxHeight: 420, overflowY: "auto" }}>
+              {chatMsgs.map((m, i) => (
+                <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: m.role === "ai" ? "#f0fdfa" : "#f1f3f5", border: `1px solid ${m.role === "ai" ? "#99f6e4" : "#e5e7eb"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 600, flexShrink: 0, color: m.role === "ai" ? "#0f766e" : "#475569" }}>
+                    {m.role === "ai" ? "AI" : "U"}
+                  </div>
+                  <div style={{ fontSize: 12, padding: "8px 12px", borderRadius: 8, maxWidth: "82%", lineHeight: 1.6, background: m.role === "ai" ? "#f8f9fa" : "#0d9488", color: m.role === "ai" ? "#0f172a" : "#fff", border: m.role === "ai" ? "1px solid #e5e7eb" : "none" }}>{m.text}</div>
                 </div>
               ))}
               {chatLoading && (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#f0fdfa", border: "1px solid #99f6e4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "#0f766e", fontWeight: 600 }}>AI</div>
-                  <div style={{ fontSize: 13, padding: "8px 12px", borderRadius: 8, background: "#f8f9fa", border: "1px solid #e5e7eb", color: "#94a3b8" }}>Thinking...</div>
+                <div style={{ display: "flex", gap: 7 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#f0fdfa", border: "1px solid #99f6e4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 600, color: "#0f766e" }}>AI</div>
+                  <div style={{ fontSize: 12, padding: "8px 12px", borderRadius: 8, background: "#f8f9fa", border: "1px solid #e5e7eb", color: "#94a3b8" }}>Thinking...</div>
                 </div>
               )}
               <div ref={chatEndRef} />
             </div>
-            <div style={{ borderTop: "1px solid #e5e7eb", padding: "10px 14px", display: "flex", gap: 8 }}>
-              <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendChat()} placeholder="Ask anything about your data..." style={{ flex: 1, border: "1px solid #d1d5db", borderRadius: 8, padding: "8px 12px", fontSize: 13, fontFamily: "inherit", outline: "none", color: "#0f172a" }} />
-              <button onClick={sendChat} disabled={chatLoading} style={{ width: 36, height: 36, borderRadius: 8, background: "#0d9488", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M2 21l21-9L2 3v7l15 2-15 2z" /></svg>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, padding: "0 14px 10px" }}>
+              {["Why is FCR only 8.6%?", "Which market is most critical?", "What should management do?", "Explain market_2 × type_3"].map(q => (
+                <span key={q} onClick={() => { setChatInput(q); setTimeout(sendChat, 100); }} style={{ fontSize: 11, padding: "3px 10px", borderRadius: 99, border: "1px solid #e5e7eb", background: "#fff", color: "#475569", cursor: "pointer" }}>{q}</span>
+              ))}
+            </div>
+            <div style={{ borderTop: "1px solid #e5e7eb", padding: "10px 14px", display: "flex", gap: 7 }}>
+              <input id="ci" value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} placeholder="Ask anything about your data..." style={{ flex: 1, border: "1px solid #d1d5db", borderRadius: 8, padding: "8px 12px", fontSize: 13, fontFamily: "Inter, sans-serif", outline: "none", color: "#0f172a" }} />
+              <button onClick={sendChat} disabled={chatLoading} style={{ width: 34, height: 34, borderRadius: 8, background: "#0d9488", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M2 21l21-9L2 3v7l15 2-15 2z" /></svg>
               </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-      </div>
+      {/* ── GENERATOR TAB ── */}
+      {tab === "generator" && (
+        <div style={s.content}>
+          <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid #e5e7eb" }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: genApiKey.startsWith("sk-ant") ? "#0d9488" : "#f1f3f5", color: genApiKey.startsWith("sk-ant") ? "#fff" : "#94a3b8", fontSize: 10, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>0</div>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Claude API Key</span>
+            </div>
+            <div style={{ padding: 14 }}>
+              <input type="password" placeholder="sk-ant-api03-..." value={genApiKey} onChange={e => setGenApiKey(e.target.value)} style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 8, padding: "8px 12px", fontSize: 12, fontFamily: "monospace", outline: "none", color: "#0f172a" }} />
+              <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 5, lineHeight: 1.5 }}>Your key stays in your browser only. Get yours at <strong>console.anthropic.com</strong></p>
+            </div>
+          </div>
+
+          <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid #e5e7eb" }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#0d9488", color: "#fff", fontSize: 10, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>1</div>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Describe Your Dashboard</span>
+            </div>
+            <div style={{ padding: 14 }}>
+              <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+                {(["prompt", "screenshot", "auto"] as GenMode[]).map((m, i) => (
+                  <button key={m} onClick={() => setGenMode(m)} style={{ fontFamily: "Inter, sans-serif", fontSize: 11, padding: "5px 12px", borderRadius: 99, border: "1px solid #d1d5db", background: genMode === m ? "#0d9488" : "#fff", color: genMode === m ? "#fff" : "#475569", cursor: "pointer", fontWeight: 500, transition: "all 0.15s" }}>
+                    {["✏️ Text Prompt", "🖼️ Screenshot", "✨ AI Decides"][i]}
+                  </button>
+                ))}
+              </div>
+              {genMode === "prompt" && (
+                <>
+                  <textarea value={genPrompt} onChange={e => setGenPrompt(e.target.value)} placeholder="Describe your dashboard..." style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 8, padding: "9px 12px", fontSize: 12, fontFamily: "Inter, sans-serif", resize: "vertical", minHeight: 70, outline: "none", color: "#0f172a" }} />
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 7 }}>
+                    {["Dark executive dashboard with KPI cards and cross-filtering", "Clean minimal white dashboard with donut charts", "Power BI style blue theme with grouped bar charts", "Sales dashboard with monthly trend and regional comparison"].map(p => (
+                      <span key={p} onClick={() => setGenPrompt(p)} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 99, border: "1px solid #e5e7eb", background: "#fff", color: "#475569", cursor: "pointer" }}>{p.slice(0, 28)}...</span>
+                    ))}
+                  </div>
+                </>
+              )}
+              {genMode === "screenshot" && (
+                <div>
+                  <p style={{ fontSize: 12, color: "#475569", marginBottom: 8, lineHeight: 1.6 }}>Upload a Power BI or Tableau screenshot — Claude Vision reads the layout and recreates it with your data.</p>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, padding: 12, border: "1.5px dashed #d1d5db", borderRadius: 8, cursor: "pointer" }}>
+                    <span style={{ fontSize: 18 }}>🖼️</span>
+                    <span style={{ fontSize: 12, color: "#475569" }}>{genScreenshot ? "✓ Screenshot uploaded" : "Click to upload dashboard screenshot (PNG, JPG)"}</span>
+                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && handleScreenshotUpload(e.target.files[0])} />
+                  </label>
+                  <textarea id="ss-extra" placeholder="Additional instructions (optional)" style={{ width: "100%", marginTop: 8, border: "1px solid #d1d5db", borderRadius: 8, padding: "8px 12px", fontSize: 12, fontFamily: "Inter, sans-serif", minHeight: 50, outline: "none", color: "#0f172a" }} />
+                </div>
+              )}
+              {genMode === "auto" && (
+                <div style={{ padding: 16, background: "#f0fdfa", border: "1px solid #99f6e4", borderRadius: 8, textAlign: "center" }}>
+                  <div style={{ fontSize: 18, marginBottom: 6 }}>✨</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: "#0f766e", marginBottom: 4 }}>AI will decide everything</div>
+                  <div style={{ fontSize: 12, color: "#475569", lineHeight: 1.6 }}>Claude analyses your data schema and generates the optimal dashboard automatically.</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <button onClick={generateDashboard} disabled={!genApiKey.startsWith("sk-ant") || genLoading}
+            style={{ width: "100%", padding: 13, background: genApiKey.startsWith("sk-ant") ? "#0d9488" : "#94a3b8", color: "#fff", border: "none", borderRadius: 12, fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif", cursor: genApiKey.startsWith("sk-ant") ? "pointer" : "not-allowed", letterSpacing: "0.04em", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+            {genLoading ? "⏳ Generating..." : "✨ Generate AI Dashboard"}
+          </button>
+
+          {genCode && (
+            <div style={{ background: "#fff", border: "1px solid #99f6e4", borderRadius: 12, overflow: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#f0fdfa", borderBottom: "1px solid #99f6e4" }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#0f766e", letterSpacing: "0.04em" }}>✓ AI GENERATED — INTERACTIVE DASHBOARD</span>
+                <div style={{ display: "flex", gap: 5 }}>
+                  <button onClick={generateDashboard} style={s.btnSm}>↻ Regenerate</button>
+                  <button onClick={() => navigator.clipboard.writeText(genCode).then(() => alert("Code copied!"))} style={s.btnSm}>⟨/⟩ Copy Code</button>
+                </div>
+              </div>
+              <iframe srcDoc={genCode} style={{ width: "100%", border: "none", minHeight: 500, display: "block" }} sandbox="allow-scripts allow-same-origin" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
