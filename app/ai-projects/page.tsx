@@ -143,14 +143,14 @@ export default function AIProjectsPage() {
               <div>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The Essence</h3>
                 <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
-                  An <strong>interactive BI dashboard</strong> with AI chat, anomaly detection, and cross-filtering — powered by Claude.
+                  An <strong>interactive BI dashboard</strong> with AI chat, anomaly detection, and cross-filtering.
                 </p>
               </div>
             </div>
 
             <div style={{ listStyle: 'none', padding: 0, marginBottom: '40px' }}>
               {[
-                { label: 'Intelligence', desc: 'Claude-powered AI chat and executive insights.' },
+                { label: 'Intelligence', desc: 'AI chat and executive insights.' },
                 { label: 'Architecture', desc: 'Next.js, TypeScript, cross-filtering heatmap dashboard.' }
               ].map((item, index) => (
                 <div key={index} style={{ display: 'flex', marginBottom: '8px', fontSize: '0.95rem', color: '#666' }}>
