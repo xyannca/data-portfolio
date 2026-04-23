@@ -32,6 +32,11 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      
+      <head>
+        <meta name="google-site-verification" content="YOUR_CODE_HERE" />
+      </head>
+
       <body>
       
         <nav className={`nav-bar ${scrolled ? "scrolled" : ""} 

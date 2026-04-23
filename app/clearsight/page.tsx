@@ -590,7 +590,7 @@ export default function ClearSightPage() {
               <span style={{ marginLeft: "auto", fontSize: 10, padding: "2px 9px", borderRadius: 99, background: "#f0fdfa", color: "#0f766e", border: "1px solid #99f6e4", fontWeight: 500 }}>Demo</span>
             </div>
             <div style={{ padding: "14px 16px" }}>
-              <p style={{ fontSize: 12, color: "#475569", lineHeight: 1.7, margin: 0 }}>The AI Dashboard Generator is fully built and operational. In this portfolio demo it is disabled for security. To see a live walkthrough or discuss integration, contact the developer below.</p>
+              <p style={{ fontSize: 12, color: "#475569", lineHeight: 1.7, margin: 0 }}>In this portfolio demo, AI Generator is disabled currently. To see a live walkthrough or discuss integration, contact the developer below.</p>
               <a href="mailto:xyannca@gmail.com" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 12, color: "#0d9488", fontWeight: 500, textDecoration: "none" }}>📩 Contact for full version access</a>
             </div>
           </div>
