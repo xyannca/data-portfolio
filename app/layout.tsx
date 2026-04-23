@@ -32,9 +32,9 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      
+
       <head>
-        <meta name="google-site-verification" content="YOUR_CODE_HERE" />
+        <meta name="google-site-verification" content="EB28m1pa52nd8RKsWeZnVNhFKihxyN4iSCR6iGsUwks" />
       </head>
 
       <body>
