@@ -365,7 +365,7 @@ export default function ClearSightPage() {
   };
 
   function heatmapRate(mkt: string, tp: string) { const d = filtered.filter(r => r.market === mkt && r.type === tp); return d.length ? avgR(d) : null; }
-  function heatmapClass(v: number): React.CSSProperties { return v >= 94 ? { background: "#fef2f2", color: "#dc2626" } : v >= 80 ? { background: "#fff7ed", color: "#c2410c" } : { background: "#f0fdf4", color: "#15803d" }; }
+  function heatmapClass(v: number): React.CSSProperties { return v >= 94 ? { background: "#fef2f2", color: "#dc2626" } : v >= 80 ? { background: "#fff7ed", color: "#d97706" } : { background: "#f0fdf4", color: "#15803d" }; }
 
   return (
     <div style={{ fontFamily: "Inter, sans-serif", background: "#f8f9fa", minHeight: "100vh", color: "#0f172a",  maxWidth: 1400, margin: "0 auto" }} className="clearsight-wrapper">
