@@ -137,7 +137,7 @@ export default function AIProjectsPage() {
               <div>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The About</h3>
                 <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
-                  Describe your data or upload a mockup. ClearSight uses <strong>AI to build interactive dashboards instantly</strong> 
+                  Upload your data or a mockup. ClearSight uses <strong>AI to build interactive dashboards instantly.</strong> 
                 </p>
               </div>
               <div>
@@ -150,7 +150,7 @@ export default function AIProjectsPage() {
 
             <div style={{ listStyle: 'none', padding: 0, marginBottom: '40px' }}>
               {[
-                { label: 'Intelligence', desc: 'Automated business data analysis and dashboard generation - powered by AI.' },
+                { label: 'Intelligence', desc: 'Automated business data analysis by AI.' },
                 { label: 'Architecture', desc: 'Next.js, TypeScript, LLM API integration.' }
               ].map((item, index) => (
                 <div key={index} style={{ display: 'flex', marginBottom: '8px', fontSize: '0.95rem', color: '#666' }}>
