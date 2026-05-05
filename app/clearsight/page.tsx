@@ -255,8 +255,8 @@ function DonutChart({ labels, values, colors, filterDim, filters, toggle }: {
   });
   const ai = labels.findIndex(l => filters[filterDim] === l);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-      <svg width={180} height={180} viewBox="0 0 180 180" style={{ flexShrink: 0 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+      <svg width={150} height={150} viewBox="0 0 180 180" style={{ flexShrink: 0 }}>
         {slices.map((sl, i) => (
           <path key={i} d={sl.d} fill={sl.color} suppressHydrationWarning opacity={sl.dim ? 0.15 : sl.sel ? 1 : 0.82} stroke="#fff" strokeWidth={2.5} style={{ cursor: "pointer", transition: "opacity 0.15s" }} onClick={() => toggle(filterDim, sl.label)} />
         ))}

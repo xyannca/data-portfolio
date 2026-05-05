@@ -57,7 +57,7 @@ export default function AIProjectsPage() {
 
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: '1fr 1fr', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
               gap: '40px', 
               marginTop: '40px', 
               marginBottom: '40px',
@@ -110,8 +110,8 @@ export default function AIProjectsPage() {
             <h2 style={{ fontSize: '2.0rem', marginBottom: '15px' }}>ClearSight</h2>
 
             <h1 style={{ fontSize: '1.1rem', color: '#14b8a6', fontWeight: '800', marginBottom: '20px', lineHeight: '1.3' }}>
-              AI-powered call center analytics
-              <span style={{ color: '#14b8a6' }}> with cross-filtering insights </span>
+              Auto-generate dashboards from data 
+              <span style={{ color: '#14b8a6' }}> </span>
             </h1>
             
             <p style={{ 
@@ -121,12 +121,12 @@ export default function AIProjectsPage() {
               fontSize: '0.9rem',
               fontFamily: 'Georgia, serif' 
             }}>
-              From raw call data to executive decisions — in seconds.
+              Designed for non-technical business users. 
             </p>
 
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: '1fr 1fr', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
               gap: '40px', 
               marginTop: '40px', 
               marginBottom: '40px',
@@ -137,21 +137,21 @@ export default function AIProjectsPage() {
               <div>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The About</h3>
                 <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
-                  A <strong>91.4% repeat call rate</strong> signals a first-call resolution crisis. ClearSight surfaces anomalies, benchmarks, and root causes instantly.
+                  Describe your data or upload a mockup. ClearSight uses <strong>AI to build interactive dashboards instantly</strong> 
                 </p>
               </div>
               <div>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px', color: '#999' }}>The Essence</h3>
                 <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#444', margin: 0 }}>
-                  An <strong>interactive BI dashboard</strong> with AI chat, anomaly detection, and cross-filtering.
+                  From raw data to <strong>executive-ready dashboards</strong> in seconds. AI handles analysis, anomaly detection, and storytelling automatically.
                 </p>
               </div>
             </div>
 
             <div style={{ listStyle: 'none', padding: 0, marginBottom: '40px' }}>
               {[
-                { label: 'Intelligence', desc: 'AI chat and executive insights.' },
-                { label: 'Architecture', desc: 'Next.js, TypeScript, cross-filtering heatmap dashboard.' }
+                { label: 'Intelligence', desc: 'Automated business data analysis and dashboard generation - powered by AI.' },
+                { label: 'Architecture', desc: 'Next.js, TypeScript, LLM API integration.' }
               ].map((item, index) => (
                 <div key={index} style={{ display: 'flex', marginBottom: '8px', fontSize: '0.95rem', color: '#666' }}>
                   <span style={{ marginRight: '10px', color: '#ccc' }}>•</span>
