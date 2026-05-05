@@ -402,12 +402,18 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
                
                <div className="space-y-12 max-h-[440px] min-h-[300px] overflow-y-auto pr-10 py-2 ds-custom-scroll w-full">
                   {chatHistory.map((msg, i) => (
-                    <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-center text-center'} w-full animate-reveal`}>
-                       {msg.role === 'user' ? ( <div className="max-w-[80%] px-4 py-2 text-stone-600 text-lg italic opacity-90">{msg.text}</div> ) : (
-                         <div className="py-8 w-full px-4 sm:px-24 text-center">
-                            <p className="text-xl md:text-3xl font-light text-stone-500 leading-loose text-center max-w-4xl mx-auto italic">{msg.text}</p>
-                            {msg.guidance && <p className="text-lg text-stone-400 font-light italic opacity-60 px-12">{msg.guidance}</p>}
-                         </div>
+                    <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-center text-justify'} w-full animate-reveal`}>
+                       {msg.role === 'user' ? ( <div className="max-w-[80%] px-4 py-2 text-stone-400 text-sm opacity-60" style={{fontFamily: 'Georgia, serif'}}>{msg.text}</div>) : (
+                         <div className="py-8 w-full px-16 sm:px-40 text-justify">
+                            <p className="text-[10px] uppercase tracking-widest text-teal-400 mb-2" style={{fontFamily: 'Georgia, serif'}}>Analysis</p>
+                            <p className="text-lg md:text-xl leading-relaxed text-justify max-w-2xl mx-auto" style={{fontFamily: 'Georgia, serif', lineHeight: '1.2', color: '#14b8a6'}}>{msg.text}</p>
+                            {msg.guidance && (
+                              <>
+                                <p className="text-[10px] uppercase tracking-widest text-teal-400 mb-2 mt-8" style={{fontFamily: 'Georgia, serif'}}>Guidance</p>
+                                <p className="text-sm leading-relaxed text-justify max-w-2xl mx-auto" style={{fontFamily: 'Georgia, serif', color: '#94a3b8', marginTop: '0.5rem'}}>{msg.guidance}</p>
+                              </>
+                            )}
+                          </div>
                        )}
                     </div>
                   ))}
@@ -416,7 +422,7 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
 
                <div className="pt-2 mt-10 mb-10 px-4 w-full max-w-sm mx-auto flex justify-center">
                  <div className="ds-input-clean relative flex shadow-sm">
-                     <textarea rows={3} className="flex-1 bg-transparent border-none outline-none text-2xl text-stone-700 placeholder:text-stone-300 italic resize-none relative z-[999] overflow-y-auto " 
+                     <textarea rows={3} className="flex-1 bg-transparent border-none outline-none text-2xl text-stone-700 placeholder:text-stone-300 resize-none relative z-[999] overflow-y-auto " 
                      placeholder="..." value={input} onChange={(e) => setInput(e.target.value)} 
                      onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runStrike(); } }} />
                      {isProcessing && <Loader2 size={26} className="animate-spin text-teal-600 ml-4 mb-2" />}
