@@ -160,8 +160,8 @@ export default function AIProjectsPage() {
               ))}
             </div>
 
-            <Link href="/clearsight" style={{ color: '#0066cc', fontWeight: '600', textDecoration: 'none', borderBottom: '2px solid #0066cc' }}>
-              Open Dashboard →
+            <Link href="#" style={{ color: '#0066cc', fontWeight: '600', textDecoration: 'none', borderBottom: '2px solid #0066cc' }}>
+              Coming Soon
             </Link>
           </div>
 
