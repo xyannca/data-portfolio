@@ -386,3 +386,90 @@ footer a:hover {
 body.page-clearsight .nav-bar {
   display: none;
 }
+
+/* ============================================
+   MOBILE RESPONSIVE FIXES
+   ============================================ */
+
+@media (max-width: 768px) {
+
+  /* --- NAV BAR --- */
+  .nav-bar {
+    top: 16px;
+    right: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 16px;
+  }
+  .nav-bar a {
+    font-size: 15px;
+  }
+
+  /* --- HERO --- */
+  .hero {
+    min-height: 70vh;
+    padding-top: 100px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .hero-text h1 {
+    font-size: 1.4rem;
+  }
+  .hero-text p {
+    font-size: 1.1rem;
+    margin-top: 30px;
+  }
+
+  .behavioral-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  @media (max-width: 768px) {
+    .behavioral-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  /* --- CORE FOCUS SECTION (3 pillars) --- */
+  /* This section uses inline styles, override via these selectors won't work.
+     See Fix 2 below for the page.tsx changes needed. */
+
+  /* --- ARTICLE SECTION --- */
+  .articles-section {
+    padding: 20px 5%;
+  }
+
+  .article-container {
+    flex-direction: column;
+    gap: 30px;
+    padding: 20px 5%;
+  }
+
+  .article-text {
+    max-width: 100%;
+    min-width: unset;
+  }
+
+  .article-image {
+    max-width: 200px;
+    margin: 0 auto;
+  }
+
+  /* --- BEHAVIORAL INSIGHTS 2-col grid → 1-col --- */
+  /* See Fix 2 below (inline style in page.tsx) */
+
+  /* --- FOOTER --- */
+  footer > div:first-child {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
+
+  .footer-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+}

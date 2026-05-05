@@ -26,7 +26,7 @@ export default function Home() {
           
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
             gap: '40px',
             maxWidth: '1200px',
             margin: '0 auto'
@@ -70,7 +70,7 @@ export default function Home() {
       {/* 1. Professional Philosophy  */}
       <div className="article-container" style={{ 
         display: 'flex', 
-        gap: '80px', 
+        gap: '40px', 
         alignItems: 'center',  
         paddingBottom: '60px',
         flexWrap: 'wrap' 
@@ -135,10 +135,7 @@ export default function Home() {
           </h3>
           
           {/* Simple 2-column grid for the text */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: '1fr 1fr', 
-            gap: '80px', // Adjust this gap to align the second column with your image edge
+          <div className="behavioral-grid" style={{ 
             fontFamily: 'Georgia, serif', 
             fontStyle: 'italic' 
           }}>

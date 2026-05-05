@@ -15,16 +15,16 @@ import { getFirestore, collection, onSnapshot, addDoc, query, orderBy, serverTim
 // --- STYLES (Keep your existing styles here) ---
 const STYLES = `
   button, .ds-no-btn { background: none !important; border: none !important; outline: none !important; box-shadow: none !important; padding: 0; cursor: pointer; font-family: inherit; }
-  .ds-root { background-color: #fafaf9; min-height: 100vh; padding: 0 5rem; display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #44403c; }
+  .ds-root { background-color: #fafaf9; min-height: 100vh; padding: 0 1rem; display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #44403c; }
   .ds-portal-overlay { position: fixed !important; inset: 0 !important; background: #fafaf9 !important; z-index: 999999 !important; display: flex; flex-direction: column; overflow: hidden; }
-  .ds-nav { height: 140px; padding: 0 80px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1000; }
-  .ds-nav-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 6rem; }
-  .ds-nav-btn { font-size: 18px !important; font-weight: 600; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.01em; opacity: 0.3; transition: 0.5s; border-bottom: 2px solid transparent; }
+  .ds-nav { height: 80px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1000; }
+.ds-nav-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 3rem; }
+  .ds-nav-btn { font-size: 15px !important; font-weight: 600; font-family: "Georgia", "Times New Roman";text-transform: uppercase; letter-spacing: 0.01em; opacity: 0.3; transition: 0.5s; border-bottom: 2px solid transparent; }
   .ds-nav-btn:hover { opacity: 0.9; color: #14b8a6; }
   .ds-nav-btn-active { opacity: 1; color: #14b8a6; border-bottom: 2.5px solid #14b8a6; background: none}
   .ds-main-viewport { max-width: 72rem; width: 100%; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 10; }
-  .ds-home-title { font-size: 6rem !important; font-weight: 900; letter-spacing: -0.06em; line-height: 1; margin-bottom: 4rem; color: #1c1917; }
-  .ds-input-clean { background: rgba(255, 255, 255, 0.4); border: 1.2px solid rgba(20, 184, 166, 0.15); border-radius: 3rem; padding: 1.5rem 2.5rem; transition: all 0.4s; width: 100%; margin-bottom: 3rem; min-height: 100px; display: flex; flex-direction: column; resize: none; overflow-y: auto; line-height: 1.6;}
+  .ds-home-title { font-size: clamp(2.5rem, 10vw, 6rem) !important; font-weight: 900; letter-spacing: -0.06em; line-height: 1; margin-bottom: 4rem; color: #1c1917; }
+  .ds-input-clean { background: rgba(255, 255, 255, 0.4); border: 1.2px solid rgba(20, 184, 166, 0.15); border-radius: 3rem; padding: 1.5rem 2.5rem; transition: all 0.4s; width: 80%; margin-bottom: 3rem; min-height: 60px; display: flex; flex-direction: column; resize: none; overflow-y: auto; line-height: 1.6;}
   .ds-input-clean:focus-within { border-color: #14b8a6; background: #fff; box-shadow: 0 15px 40px -15px rgba(20, 184, 166, 0.08); }
   .ds-home-card { background: #ffffff; border: 1px solid rgba(20, 184, 166, 0.1); border-radius: 4rem; padding: 6rem 8rem; display: flex; align-items: center; gap: 5rem; cursor: pointer; transition: all 0.8s cubic-bezier(0.15, 1, 0.3, 1); position: relative; overflow: hidden; margin-top: 8rem !important; max-width: 90%; }
   .ds-home-card:hover { transform: translateY(-15px); box-shadow: 0 60px 120px -30px rgba(20, 184, 166, 0.12); }
@@ -33,7 +33,15 @@ const STYLES = `
   .ds-breath-text { font-size: 3rem; /* Adjust this value (e.g., 3rem or 40px) to make it larger */ font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;}
   .animate-reveal { animation: reveal 1s ease-out forwards; }
   @keyframes reveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-`;
+  @media (max-width: 768px) {
+    .ds-root { padding: 0 !important; }
+    .ds-nav { height: auto !important; min-height: 60px !important; padding: 12px 16px !important; flex-wrap: wrap !important; gap: 8px !important; }
+    .ds-nav-center { position: static !important; transform: none !important; left: auto !important; gap: 1rem !important; width: 100% !important; justify-content: center !important; }
+    .ds-nav-btn { font-size: 11px !important; letter-spacing: 0.05em !important; }
+    .ds-home-card { padding: 3rem 2rem !important; flex-direction: column !important; gap: 2rem !important; border-radius: 2rem !important; margin-top: 3rem !important; }
+    .ds-input-clean { padding: 1rem 1.2rem !important; }
+  }
+  `;
 
 type ViewMode = 'home' | 'inquiry' | 'dashboard';
 
@@ -85,9 +93,14 @@ const DeepSightBackground = () => {
         const sun = new THREE.Mesh(
           new THREE.SphereGeometry(10, 64, 64), 
           new THREE.MeshStandardMaterial({ 
-            color: 0x14b8a6, 
-            emissive: 0x2dd4bf, 
-            emissiveIntensity: 22
+            color: 0xfffde7,          // A very refined, "Lemon Chiffon" white-yellow
+            emissive: 0xfff59d,       // A slightly deeper yellow for the glow core
+            emissiveIntensity: 1.2,   // High intensity creates that "sharp" light effect
+            transparent: true,
+            opacity: 0.9,             // Slight transparency prevents it from feeling "heavy"
+            roughness: 0,             // Makes the surface perfectly smooth for a "sharp" look
+            metalness: 0
+
           })
         );
         // --- sun position ---
@@ -103,8 +116,8 @@ const DeepSightBackground = () => {
             
             // Smooth breathing logic
             let breathScale = (breathCycle < 4) 
-                ? 1.0 + (breathCycle / 4) * 0.2 
-                : 1.2 - ((breathCycle - 4) / 6) * 0.2;
+              ? 1.0 + (breathCycle / 4) * 0.3
+              : 1.3 - ((breathCycle - 4) / 6) * 0.3;
 
             // Surface wave logic
             const pos = geometry.attributes.position;
@@ -137,7 +150,7 @@ const DeepSightBackground = () => {
     return <div ref={containerRef} style={{position:'fixed', inset:0, pointerEvents:'none', opacity:0.9}} />;
 };
 
-const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetStateAction<ViewMode>>, view: ViewMode }) => {
+const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<React.SetStateAction<ViewMode>>, view: ViewMode, onClose?: () => void }) => {
   const [user, setUser] = useState<User | null>(null);
   const [db, setDb] = useState<any>(null);
   const [input, setInput] = useState('');
@@ -304,7 +317,15 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
         body: JSON.stringify({ 
           message: "Synthesize journey.", 
           chatHistory, 
-          mode: 'dashboard' 
+          mode: 'dashboard',
+          clinicalScores: {
+            ...(responses.anxiety !== null && { 
+              anxiety: { score: responses.anxiety, tool: 'GAD-7', severity: responses.anxiety >= 15 ? 'severe' : responses.anxiety >= 10 ? 'moderate' : responses.anxiety >= 5 ? 'mild' : 'minimal' }
+            }),
+            ...(responses.depression !== null && { 
+              depression: { score: responses.depression, tool: 'PHQ-9', severity: responses.depression >= 20 ? 'severe' : responses.depression >= 15 ? 'moderately severe' : responses.depression >= 10 ? 'moderate' : responses.depression >= 5 ? 'mild' : 'minimal' }
+            })
+          }
         })
       });
 
@@ -316,10 +337,18 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
         verdict: data.verdict 
       });
     } catch (e) { 
+      const hasScores = responses.anxiety !== null || responses.depression !== null;
+      const hasChatHistory = chatHistory.length > 0;
+      
       setSynthesis({ 
-        synthesis: "Resonance recorded.", 
+        synthesis: !hasChatHistory && !hasScores 
+          ? "No inquiry or clinical assessment was provided for synthesis." 
+          : !hasChatHistory 
+          ? "Clinical assessment recorded. Begin an inquiry to deepen the synthesis."
+          : "Resonance recorded.",
         verdict: "Presence is enough." 
       }); 
+    
     } finally { 
       setIsSynthesizing(false); 
     }
@@ -331,22 +360,29 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
       {isDissolved && <div onClick={() => setIsDissolved(false)} className="fixed inset-0 z-[99999] cursor-pointer bg-black/5" />}
       
       <nav className={`ds-nav transition-opacity duration-1000 ${isDissolved ? 'opacity-0' : 'opacity-100'}`}>
-        <div className="flex items-center gap-6 cursor-pointer" onClick={() => setView('home')}>
-          <DeepSightLogo size={38}/>
-          <div className="flex flex-col"><span className="text-[16px] font-black uppercase">Deep Sight</span><span className="text-[10px] font-bold text-teal-600 uppercase opacity-60">Sanctuary</span></div>
-        </div>
+  
+        {/* Close button — far left */}
+        <button
+          onClick={onClose}
+          className="ds-no-btn flex items-center gap-2 text-stone-400 hover:text-stone-900 transition-all uppercase text-[10px] font-black tracking-widest"
+        >
+          <X size={14} /> <span className="hidden sm:inline">Close</span>
+        </button>
+
+
+        {/* Nav links — center */}
         <div className="ds-nav-center">
-          {['Home', 'Inquiry', 'Dashboard'].map(v => (
+          {[ 'Inquiry', 'Dashboard'].map(v => (
             <button key={v} onClick={() => setView(v.toLowerCase() as ViewMode)} className={`ds-no-btn ds-nav-btn ${view === v.toLowerCase() ? 'ds-nav-btn-active' : ''}`}>{v}</button>
           ))}
         </div>
-        <div className="w-32 flex justify-end text-[10px] font-bold text-stone-200 uppercase opacity-40">{user ? `LNK: ${user.uid.slice(0, 6)}` : "syncing..."}</div>
+
       </nav>
 
       <main className="flex-1 overflow-y-auto ds-custom-scroll pt-12">
         {view === 'home' && (
-          <div className="min-h-[65vh] flex flex-col items-center justify-center text-center px-12 animate-reveal">
-               <h1 className="text-[6rem] font-bold text-stone-900 tracking-[-0.04em] leading-[0.85] antialiased">Deep Sight</h1>
+          <div className="min-h-[65vh] flex flex-col items-center justify-center text-center px-4 animate-reveal">
+               <h1 className="text-[clamp(2rem,8vw,4rem)] font-bold text-stone-900 tracking-[-0.04em] leading-[0.85] antialiased">Deep Sight</h1>
                <p className="text-stone-400 text-2xl font-light italic max-w-2xl opacity-70">Dissolving the figures of the loop to reveal the silence of the source.</p>
                <button onClick={() => setView('inquiry')} className="mt-24 text-[18px] text-[#14b8a6] font-bold font-bold tracking-[0.3em] uppercase transition-all hover:scale-105 hover:text-teal-500"
                   >Initiate Inquiry</button>
@@ -365,12 +401,10 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
                </div>
                
                <div className="space-y-12 max-h-[440px] min-h-[300px] overflow-y-auto pr-10 py-2 ds-custom-scroll w-full">
-                  {chatHistory.length === 0 ? (
-                    <div className="h-20 flex items-center justify-center opacity-10 italic text-stone-400 text-4xl font-extralight">The water is still. Begin.</div>
-                  ) : chatHistory.map((msg, i) => (
+                  {chatHistory.map((msg, i) => (
                     <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-center text-center'} w-full animate-reveal`}>
                        {msg.role === 'user' ? ( <div className="max-w-[80%] px-4 py-2 text-stone-600 text-lg italic opacity-90">{msg.text}</div> ) : (
-                         <div className="py-14 w-full px-24 text-center">
+                         <div className="py-8 w-full px-4 sm:px-24 text-center">
                             <p className="text-xl md:text-3xl font-light text-stone-500 leading-loose text-center max-w-4xl mx-auto italic">{msg.text}</p>
                             {msg.guidance && <p className="text-lg text-stone-400 font-light italic opacity-60 px-12">{msg.guidance}</p>}
                          </div>
@@ -380,9 +414,9 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
                   <div ref={chatEndRef} />
                </div>
 
-               <div className="pt-2 mt-10 mb-10 px-4 w-full max-w-xl mx-auto flex justify-center">
+               <div className="pt-2 mt-10 mb-10 px-4 w-full max-w-sm mx-auto flex justify-center">
                  <div className="ds-input-clean relative flex shadow-sm">
-                     <textarea rows={4} className="flex-1 bg-transparent border-none outline-none text-2xl text-stone-700 placeholder:text-stone-300 italic resize-none relative z-[999] overflow-y-auto " 
+                     <textarea rows={3} className="flex-1 bg-transparent border-none outline-none text-2xl text-stone-700 placeholder:text-stone-300 italic resize-none relative z-[999] overflow-y-auto " 
                      placeholder="..." value={input} onChange={(e) => setInput(e.target.value)} 
                      onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runStrike(); } }} />
                      {isProcessing && <Loader2 size={26} className="animate-spin text-teal-600 ml-4 mb-2" />}
@@ -394,7 +428,7 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
 
         {view === 'dashboard' && (
           <div className="relative z-50 min-h-screen pt-[30vh] pb-60 px-10 flex flex-col items-center animate-reveal">
-            <section className="flex flex-row justify-around w-full gap-24 max-w-4xl mb-24 items-center">
+            <section className="flex flex-row justify-around w-full gap-8 sm:gap-24 max-w-4xl mb-24 items-center">
               {['anxiety', 'depression'].map((type) => (
                 <div key={type} onClick={() => setActiveQuestionnaire(type)} className="cursor-pointer text-center group flex-1">
                   <p className="text-[11px] font-black uppercase tracking-[0.8em] text-stone-400 group-hover:text-teal-600 transition-colors italic mb-4">
@@ -410,8 +444,9 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
               <div className="min-h-[250px] text-center px-8">
                 {synthesis ? (
                   <div className="space-y-12 animate-reveal">
-                    <p className="text-2xl text-stone-600 font-light italic">"{synthesis.synthesis}"</p>
-                    <p className="text-5xl text-teal-600 font-extralight italic tracking-tighter">{synthesis.verdict}</p>
+                    <p className="text-stone-400 italic font-light tracking-normal  text-[12px]">{synthesis.synthesis}</p>
+                    <p className="text-stone-400 italic font-light tracking-normal  text-[12px]">{synthesis.verdict}</p>
+
                   </div>
                 ) : ( <p className="text-stone-300 italic font-light tracking-[0.5em] uppercase text-[12px]">Awaiting Somatic Presence...</p> )}
               </div>
@@ -509,26 +544,26 @@ const DeepSightPortal = ({ setView, view }: { setView: React.Dispatch<React.SetS
 
 const App = () => {
   const [activeProject, setActiveProject] = useState<string | null>(null);
-  const [view, setView] = useState<ViewMode>('home');
+  const [view, setView] = useState<ViewMode>('inquiry');
 
   return (
     <div className="ds-root min-h-screen flex flex-col">
       <style>{STYLES}</style>
       
       {!activeProject && (
-        <div className="max-w-7xl mx-auto px-12 animate-reveal flex-1 flex flex-col">
+        <div className="max-w-7xl mx-auto px-4 sm:px-12 animate-reveal flex-1 flex flex-col">
           {/* Main Project Card */}
           <div 
             onClick={() => setActiveProject('deep-sight')} 
             className="ds-home-card group mt-20"
           >
-              <DeepSightLogo size={220} />
+              <DeepSightLogo size={120} />
               <div className="flex flex-col items-start text-left">
-                <h2 className="text-[6rem] font-black mb-14 tracking-tighter text-stone-900 leading-none">Deep Sight</h2>
-                <p className="text-2xl text-stone-500 italic max-w-xl">
+                <h2 className="text-[clamp(2rem,6vw,4rem)] font-black mb-6 tracking-tighter text-stone-900 leading-none">Deep Sight</h2>
+                <p className="text-1xl text-stone-300 italic max-w-xl">
                    An inner inquiry engine leveraging LLM semantics to reflect recursive mental patterns.
                 </p>
-                <div className="flex items-center gap-12 text-[#14b8a6] font-black text-[20px] tracking-[0.8em] uppercase group-hover:text-teal-500 transition-colors">
+                <div className="flex items-center gap-10 text-[#14b8a6] font-black text-[16px] tracking-[0.8em] uppercase group-hover:text-teal-500 transition-colors">
                   Launch Experience <ChevronRight size={26} />
                 </div>
               </div>
@@ -545,13 +580,7 @@ const App = () => {
 
       {activeProject === 'deep-sight' && (
         <div className="ds-portal-overlay">
-          <button 
-            onClick={() => { setActiveProject(null); setView('home'); }} 
-            className="ds-no-btn fixed top-12 right-12 z-[1000000] text-stone-400 hover:text-stone-900 transition-all uppercase text-[11px] font-black bg-white/80 px-12 py-5 rounded-full shadow-md border border-stone-100"
-          >
-            <X size={20} className="mr-5" /> Close Project
-          </button>
-          <DeepSightPortal setView={setView} view={view} />
+          <DeepSightPortal setView={setView} view={view} onClose={() => { setActiveProject(null); setView('home'); }} />
         </div>
       )}
     </div>

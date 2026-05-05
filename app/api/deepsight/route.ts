@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     console.log("API request uid:", uid);
 
     const body = await req.json(); // 1. body
-    const { message, chatHistory, mode } = body; // 2. 
+    const { message, chatHistory, mode, clinicalScores } = body; // 2. 
 
     // 3. 
     console.log("Current message length:", message.length);
@@ -140,8 +140,17 @@ export async function POST(req: Request) {
     });
 
     // ===== 6. Prepare Input Text =====
+
+    const clinicalContext = clinicalScores && Object.keys(clinicalScores).length > 0
+      ? `\nClinical Scores:\n${clinicalScores.anxiety ? `- GAD-7 Anxiety: ${clinicalScores.anxiety.score}/21 (${clinicalScores.anxiety.severity})` : ''}${clinicalScores.depression ? `\n- PHQ-9 Depression: ${clinicalScores.depression.score}/27 (${clinicalScores.depression.severity})` : ''}`
+      : '';
+
+    const chatContext = (chatHistory || []).map((m: any) => `${m.role}: ${m.text}`).join("\n");
+
     const inputText = mode === "dashboard"
-      ? `SYNTHESIZE FROM CHAT HISTORY:\n${(chatHistory || []).map((m: any) => `${m.role}: ${m.text}`).join("\n")}`
+      ? !chatContext && !clinicalContext
+        ? `No data provided. Return exactly: {"synthesis": "No chat history or test result was provided", "verdict": "Input is required"}`
+        : `SYNTHESIZE:\nChat:\n${chatContext}${clinicalContext}`
       : message;
   
     // ===== 7. Execute Generation (with fallback) =====
