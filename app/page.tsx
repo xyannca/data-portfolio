@@ -230,17 +230,7 @@ export default function Home() {
           <div>
             <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Connect</h3>
             <ul style={{ listStyle: 'none', padding: 0 }}>
-              <li><a href="mailto:xyannca@gmail.com">Email Me</a></li>
-              <li style={{ marginTop: '10px' }}>
-                <a 
-                  href="https://www.linkedin.com/in/anne-g-ba3b5322" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-teal-600 transition-colors cursor-pointer"
-                >
-                  LinkedIn
-                </a>
-              </li>
+              <li><a href="https://docs.google.com/forms/d/e/1FAIpQLSedNqfZObJxmxQV0kM3JN4-hbwS-_B5aShn-OiD2Qo4B17ylA/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer">Feedback & Reflections</a></li>
               
             </ul>
           </div>
@@ -251,11 +241,7 @@ export default function Home() {
             <ul style={{ listStyle: 'none', padding: 0 }}>
               
               <li><Link href="/deep-sight" style={{ color: '#666', textDecoration: 'none' }}>AI Deep Sight Project</Link></li>
-              <li><a href="https://github.com/xyannca"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-teal-600 transition-colors cursor-pointer"
-              >GitHub Portfolio</a></li>
+              
             </ul>
 
           </div>
@@ -283,7 +269,7 @@ export default function Home() {
             }}
           >
         <div className="footer-row">
-            <span>© 2026 Anne Gu. All rights reserved.</span>
+            <span>© 2026 DeepSight. All rights reserved.</span>
             <span>{' • '}</span>
             <Link
               href="/privacy"

@@ -586,7 +586,7 @@ const App = () => {
 
           <div className="mt-auto py-12 text-center">
             <p className="text-[15px] text-stone-400 font-serif italic max-w-3xl mx-auto opacity-80">
-              DeepSight is a pathway to presence and self-inquiry. It is not a clinical substitute for professional medical advice.
+              DeepSight is an exploration into finding a pathway to presence. It is not a clinical substitute for professional medical advice.
             </p>
           </div>
         </div>
