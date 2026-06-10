@@ -535,7 +535,7 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
               <div style={{paddingTop: '25vh', paddingBottom: '10rem', paddingLeft: '2rem', paddingRight: '2rem'}}>
                 <section className="w-full flex flex-col items-center relative">
                   <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#14b8a6]/40 to-transparent animate-pulse" />
-                  <button onClick={synthesizeJourney} className="text-[15px] text-[#14b8a6] font-black uppercase tracking-widest hover:opacity-70 mb-16 mt-4">
+                  <button onClick={synthesizeJourney} style={{letterSpacing: '0.3em'}} className="text-[15px] text-[#14b8a6] font-black uppercase hover:opacity-70 mb-16 mt-4">
                     {isSynthesizing ? "Resonating..." : "Regenerate insight"}
                   </button>
                   <div className="min-h-[250px] text-center">
@@ -574,7 +574,7 @@ const App = () => {
           >
               <DeepSightLogo size={120} />
               <div className="flex flex-col items-start text-left">
-                <h2 className="text-[clamp(2rem,6vw,4rem)] font-black mb-6 tracking-tighter text-stone-900 leading-none">Deep Sight</h2>
+                <h2 className="text-[clamp(2rem,6vw,4rem)] font-black mb-6 tracking-tighter text-stone-900 leading-none">DeepSight</h2>
                 <p style={{fontSize: '2rem', fontWeight: '300', color: '#14b8a6', letterSpacing: '-0.03em', lineHeight: '1'}} className="mb-8">
                   Emotion is a mist that obscures reality
                 </p>
