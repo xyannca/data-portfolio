@@ -261,8 +261,10 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
       setChatHistory(prev => [
         ...prev, 
         { role: 'user', text: message }, 
-        { role: 'master', text: "Today's AI quota has been reached. Please try again later." }
-      ]);
+        { role: 'master', text: e.message === 'Daily limit reached' 
+          ? "You have reached the limit of 20 inquiries per day. Please return tomorrow - presence awaits." 
+          : "Something went wrong. Please try later." }
+              ]);
     } finally { 
       setIsProcessing(false); 
     }
@@ -575,7 +577,7 @@ const App = () => {
               <DeepSightLogo size={120} />
               <div className="flex flex-col items-start text-left">
                 <h2 className="text-[clamp(2rem,6vw,4rem)] font-black mb-6 tracking-tighter text-stone-900 leading-none">Deep Sight</h2>
-                <p style={{fontSize: '2rem', fontWeight: '900', color: '#14b8a6', letterSpacing: '-0.03em', lineHeight: '1'}} className="mb-8">
+                <p style={{fontSize: '2rem', fontWeight: '300', color: '#14b8a6', letterSpacing: '-0.03em', lineHeight: '1'}} className="mb-8">
                   What blinds you from waking up?
                 </p>
                 <div className="flex items-center gap-10 text-[#14b8a6] font-black text-[16px] tracking-[0.8em] uppercase group-hover:text-teal-500 transition-colors">
