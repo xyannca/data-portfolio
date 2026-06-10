@@ -419,7 +419,7 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
             <div className="flex flex-col items-center text-center px-4 animate-reveal max-w-2xl mx-auto w-full pt-12">
               <div className="min-h-[30vh] flex flex-col items-center justify-end pb-4">
                 <p style={{fontSize: '1.8rem', fontWeight: '700', color: '#1a1a1a', maxWidth: '600px', lineHeight: '1.6', marginBottom: '1.5rem'}}>
-                  Waking up suddenly heals
+                  Awakening suddenly heals
                 </p>
                 <p style={{fontSize: '1.1rem', color: '#555', maxWidth: '560px', lineHeight: '1.8'}}>
                   In that instant ... anxiety dissolves, stillness arrives.<br/>
@@ -536,7 +536,7 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
                 <section className="w-full flex flex-col items-center relative">
                   <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#14b8a6]/40 to-transparent animate-pulse" />
                   <button onClick={synthesizeJourney} className="text-[15px] text-[#14b8a6] font-black uppercase tracking-widest hover:opacity-70 mb-16 mt-4">
-                    {isSynthesizing ? "Resonating..." : "Regenerate Verdict"}
+                    {isSynthesizing ? "Resonating..." : "Regenerate insight"}
                   </button>
                   <div className="min-h-[250px] text-center">
                     {synthesis ? (
@@ -544,9 +544,7 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
                         <p className="text-stone-400 italic font-light tracking-normal text-[12px]">{synthesis.synthesis}</p>
                         <p className="text-stone-400 italic font-light tracking-normal text-[12px]">{synthesis.verdict}</p>
                       </div>
-                    ) : (
-                      <p className="text-stone-300 italic font-light tracking-[0.5em] uppercase text-[12px]">Awaiting Somatic Presence...</p>
-                    )}
+                    ) : null}
                   </div>
                 </section>
               </div>
@@ -578,7 +576,7 @@ const App = () => {
               <div className="flex flex-col items-start text-left">
                 <h2 className="text-[clamp(2rem,6vw,4rem)] font-black mb-6 tracking-tighter text-stone-900 leading-none">Deep Sight</h2>
                 <p style={{fontSize: '2rem', fontWeight: '300', color: '#14b8a6', letterSpacing: '-0.03em', lineHeight: '1'}} className="mb-8">
-                  What blinds you from waking up?
+                  Emotion is a mist that obscures reality
                 </p>
                 <div className="flex items-center gap-10 text-[#14b8a6] font-black text-[16px] tracking-[0.8em] uppercase group-hover:text-teal-500 transition-colors">
                   Launch Experience <ChevronRight size={26} />
@@ -588,7 +586,7 @@ const App = () => {
 
           <div className="mt-auto py-12 text-center">
             <p className="text-[15px] text-stone-400 font-serif italic max-w-3xl mx-auto opacity-80">
-              DeepSight is a path to wake up. It is not a clinical substitute for professional medical advice.
+              DeepSight is a pathway to presence and self-inquiry. It is not a clinical substitute for professional medical advice.
             </p>
           </div>
         </div>
