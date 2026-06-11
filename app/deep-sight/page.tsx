@@ -70,7 +70,7 @@ const DeepSightLogo = ({ size = 50 }) => (
   </svg>
 );
 
-const DeepSightBackground = () => {
+const DeepSightBackground = ({ isDissolved, view }: { isDissolved: boolean, view: string }) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const requestRef = useRef<number | null>(null);
     const isHomeRef = useRef(true);
@@ -140,7 +140,7 @@ const DeepSightBackground = () => {
           renderer.dispose();
           if(containerRef.current) containerRef.current.innerHTML = ''; };
     }, []);
-    return <div ref={containerRef} style={{position:'fixed', inset:0, pointerEvents:'none', opacity:0.9}} />;
+    return <div ref={containerRef} style={{position:'fixed', inset:0, pointerEvents:'none', opacity: (isDissolved && (view === 'chan' || view === 'dashboard')) ? 0 : 0.9, transition: 'opacity 1s'}} />;
 };
 
 const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<React.SetStateAction<ViewMode>>, view: ViewMode, onClose?: () => void }) => {
@@ -323,7 +323,8 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
     
   return (
     <div className="ds-portal-overlay ds-root">
-      <DeepSightBackground />
+      <DeepSightBackground isDissolved={isDissolved} view={view} />
+      
       {isDissolved && <div onClick={() => setIsDissolved(false)} style={{position: 'fixed', inset: 0, zIndex: 99999, cursor: 'pointer'}} />}
       
       <nav style={{
