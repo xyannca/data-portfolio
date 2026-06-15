@@ -142,9 +142,9 @@ export default function Home() {
             
             {/* Watching Fear Column */}
             <div>
-              <p style={{ color: '#14b8a6', marginBottom: '10px' }}>Watching Fear</p>
+              <p style={{ color: '#14b8a6', marginBottom: '10px' }}>Data Art</p>
               <p style={{ lineHeight: '1.8', color: '#333' }}>
-                Fear cannot exist where there is no attachment to it.
+                A dashboard is far more than a collection of graphs; it is a canvas of data art, where the data flows in a picture to tell a story.
               </p>
             </div>
 
