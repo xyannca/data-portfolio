@@ -44,7 +44,7 @@ export default function Home() {
               <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🤖</div>
               <h3 style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '15px' }}>AI-Driven Automation</h3>
               
-              <Link href="/deep-sight" style={{ fontWeight: 'bold', color: '#171717', textDecoration: 'underline' }}>Explore Deep Sight</Link>
+              <Link href="/deep-sight" style={{ fontWeight: 'bold', color: '#171717', textDecoration: 'underline' }}>Explore DeepSight</Link>
             </div>
 
             {/* Pillar 3: Video Meditations */}
@@ -141,7 +141,7 @@ export default function Home() {
           }}>
             
             {/* Watching Fear Column */}
-            <div>
+            <div style={{ marginBottom: '50px' }}>
               <p style={{ color: '#14b8a6', marginBottom: '10px' }}>Data Art</p>
               <p style={{ lineHeight: '1.8', color: '#333' }}>
                 A dashboard is far more than a collection of graphs; it is a canvas of data art, where the data flows in a picture to tell a story.
@@ -240,7 +240,7 @@ export default function Home() {
             <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Projects</h3>
             <ul style={{ listStyle: 'none', padding: 0 }}>
               
-              <li><Link href="/deep-sight" style={{ color: '#666', textDecoration: 'none' }}>AI Deep Sight Project</Link></li>
+              <li><Link href="/deep-sight" style={{ color: '#666', textDecoration: 'none' }}>AI DeepSight Project</Link></li>
               
             </ul>
 
@@ -269,7 +269,7 @@ export default function Home() {
             }}
           >
         <div className="footer-row">
-            <span>© 2026 DeepSight. All rights reserved.</span>
+            <span>© 2026 Anne. All rights reserved.</span>
             <span>{' • '}</span>
             <Link
               href="/privacy"

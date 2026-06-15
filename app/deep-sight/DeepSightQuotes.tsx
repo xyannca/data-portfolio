@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
 const quotes = [
-  "This world is a dreamscape. To reach the source, one must transcendthe illusion of the forms.",
+  "All things follow a law; thus, all things are gateways to the Truth.",
   "Beneath the intricate surface lies a lucid essence.",
   "Emotion is a mist that obscures reality, yet it remains the portal to awakening.",
-  "All things follow a law; thus, all things are gateways to the Truth.",
   "True healing stems from the essence, not from mind.",
   "To perceive is to attain, for it is seen with the heart.",
-  "What you deeply obsess over harbors a longing you have yet to realize.",
+  "This world is a dreamscape. To reach the source, one must transcendthe illusion of the forms.",
+   "What you deeply obsess over harbors a longing you have yet to realize.",
 ];
 
 export default function DeepSightQuotes() {
@@ -19,7 +19,7 @@ export default function DeepSightQuotes() {
     let t2: ReturnType<typeof setTimeout>;
     let t3: ReturnType<typeof setTimeout>;
 
-    const IN_TIME = 1500;   // rising time
+    const IN_TIME = 1000;   // rising time
     const STAY_TIME = 6000; // staying time
     const OUT_TIME = 2000;  // out time
 
