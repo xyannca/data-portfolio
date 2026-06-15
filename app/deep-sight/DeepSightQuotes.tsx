@@ -6,7 +6,7 @@ const quotes = [
   "Emotion is a mist that obscures reality, yet it remains the portal to awakening.",
   "True healing stems from the essence, not from mind.",
   "To perceive is to attain, for it is seen with the heart.",
-  "This world is a dreamscape. To reach the source, one must transcendthe illusion of the forms.",
+  "This world is a dreamscape. To reach the truth, one must transcendthe illusion of the forms.",
    "What you deeply obsess over harbors a longing you have yet to realize.",
 ];
 
