@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const quotes = [
-  "Earth is a dreamscape. People drift from one dream to another, endless...",
+  "This world is a dreamscape. People drift from one dream to another, endless...",
   "Beneath the intricate surface lies a lucid essence.",
   "Emotion is a mist that obscures reality, yet it remains the portal to awakening.",
   "All things follow a law; thus, all things are gateways to the Truth.",
