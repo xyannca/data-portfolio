@@ -20,6 +20,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ### Home
 
+<img src="public/screenshot/website-home.jpg" width="900">
+
 
 
 
