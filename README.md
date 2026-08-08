@@ -20,17 +20,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ### Home
 
-<a href="https://data-portfolio-pied.vercel.app">
-  <img src="public/screenshot/website-home.jpg" width="900">
-</a>
+<img src="public/screenshot/website-home.jpg" width="900">
 
-### Deep Sight
 
-Live AI experience → https://data-portfolio-pied.vercel.app/deep-sight
 
-<a href="https://data-portfolio-pied.vercel.app/deep-sight">
-  <img src="public/screenshot/deepsight.jpg" width="900">
-</a>
 
 ## Getting Started
 
