@@ -11,11 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
-      url: 'https://data-portfolio-pied.vercel.app/ai-projects',
-      lastModified: new Date(),
-    },
-    {
-      url: 'https://data-portfolio-pied.vercel.app/clearsight',
+      url: 'https://data-portfolio-pied.vercel.app/projects',
       lastModified: new Date(),
     },
     {
