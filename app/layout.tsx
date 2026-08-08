@@ -58,10 +58,10 @@ export default function RootLayout({
           </Link>
 
           <Link
-            href="/ai-projects"
-              className={`nav-link ${pathname === "/ai-projects" ? "active" : ""}`}  
+            href="/projects"
+              className={`nav-link ${pathname === "/projects" ? "active" : ""}`}  
           >
-            AI Projects
+            Projects
           </Link>
 
           <Link

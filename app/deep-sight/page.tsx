@@ -420,10 +420,10 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
             <div className="flex flex-col items-center text-center px-4 animate-reveal max-w-2xl mx-auto w-full pt-12">
               <div className="min-h-[30vh] flex flex-col items-center justify-end pb-4">
                 <p style={{fontSize: '1.8rem', fontWeight: '700', color: '#1a1a1a', maxWidth: '600px', lineHeight: '1.6', marginBottom: '1.5rem'}}>
-                  Awakening suddenly heals
+                  Instant Presence
                 </p>
                 <p style={{fontSize: '1.1rem', color: '#555', maxWidth: '560px', lineHeight: '1.8'}}>
-                  In that instant ... anxiety dissolves, stillness arrives.<br/>
+                  In that instant, stillness arrives.<br/>
                   Not because something changed outside.<br/>
                   Because something awakened inside.
                 </p>
@@ -433,7 +433,7 @@ const DeepSightPortal = ({ setView, view, onClose }: { setView: React.Dispatch<R
                 onClick={() => setView('inquiry')} 
                 className="mt-0 mb-8 text-[18px] text-[#14b8a6] font-bold tracking-[0.3em] uppercase transition-all hover:opacity-70"
               >
-                Initiate Inquiry
+                Begin
               </button>
             </div>
           </div>
@@ -577,7 +577,7 @@ const App = () => {
               <div className="flex flex-col items-start text-left">
                 <h2 className="text-[clamp(2rem,6vw,4rem)] font-black mb-6 tracking-tighter text-stone-900 leading-none">DeepSight</h2>
                 <p style={{fontSize: '2rem', fontWeight: '300', color: '#14b8a6', letterSpacing: '-0.03em', lineHeight: '1'}} className="mb-8">
-                  Emotion is a mist that obscures reality
+                  Behind passing thoughts lies enduring space
                 </p>
                 <div className="flex items-center gap-10 text-[#14b8a6] font-black text-[16px] tracking-[0.8em] uppercase group-hover:text-teal-500 transition-colors">
                   Launch Experience <ChevronRight size={26} />

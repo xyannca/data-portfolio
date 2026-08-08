@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 
 const quotes = [
-  "All things follow a law; thus, all things are gateways to the Truth.",
+  "Every pattern holds a gateway to clarity.",
   "Beneath the intricate surface lies a lucid essence.",
-  "Emotion is a mist that obscures reality, yet it remains the portal to awakening.",
-  "True healing stems from the essence, not from mind.",
-  "To perceive is to attain, for it is seen with the heart.",
-  "This world is a dreamscape. To reach the truth, one must transcendthe illusion of the forms.",
+  "Emotion reveals what attention has yet to see.",
+  "Clarity begins when observation deepens.",
+  "To observe without judgment is to see clearly.",
+  "Behind passing thoughts lies enduring space.",
    "What you deeply obsess over harbors a longing you have yet to realize.",
 ];
 
