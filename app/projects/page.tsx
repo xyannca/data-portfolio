@@ -284,9 +284,20 @@ export default async function AIProjectsPage() {
               ))}
             </div>
 
-            <Link href="/projects/case-study" style={{ color: '#0066cc', fontWeight: '600', textDecoration: 'none', borderBottom: '2px solid #0066cc' }}>
-              View Pipeline →
-            </Link>
+            <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+              <Link
+                href="/deep-sight"
+                style={{ color: '#0066cc', fontWeight: '600', textDecoration: 'none', borderBottom: '2px solid #0066cc' }}
+              >
+                Launch Live DeepSight →
+              </Link>
+              <Link
+                href="/projects/case-study"
+                style={{ color: '#0066cc', fontWeight: '600', textDecoration: 'none', borderBottom: '2px solid #0066cc' }}
+              >
+                View Pipeline →
+              </Link>
+            </div>
           </div>
 
         </div>

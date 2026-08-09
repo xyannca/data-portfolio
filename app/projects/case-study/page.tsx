@@ -273,19 +273,7 @@ export default function CaseStudyPage() {
                 DeepSight Pipeline Engine · Standalone R&D Instance
               </span>
 
-              <Link
-                href="/deep-sight"
-                className="ob-launch-deepsight-link"
-                style={{
-                  display: 'inline-block',
-                  color: '#14b8a6',
-                  fontWeight: 700,
-                  fontSize: '1.1rem',
-                  textDecoration: 'none',
-                }}
-              >
-                Launch Live DeepSight →
-              </Link>
+          
             </div>
           </div>
 
