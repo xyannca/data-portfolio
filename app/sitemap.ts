@@ -15,10 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
-      url: 'https://data-portfolio-pied.vercel.app/deep-sight',
-      lastModified: new Date(),
-    },
-    {
         url: 'https://data-portfolio-pied.vercel.app/about',
         lastModified: new Date(),
     },
